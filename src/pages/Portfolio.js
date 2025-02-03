@@ -84,13 +84,13 @@ function Portfolio() {
 
     const fetchStocks = async () => {
         try {
-            const response = await fetch('/api/v1/stocks?userId=testUser');
+            const response = await fetch('/api/v1/stocks?userId='+userId);
             const result = await response.json();
             console.log(result);
 
             if (result.status === 'success' && result.data) {
                 const transformedData = result.data.map(item => ({
-                    type: "내 주식", // Default classification
+                    type: "분류 전", // Default classification
                     ticker: item.ticker,
                     avgPrice: item.averagePurchasePrice,
                     quantity: item.quantity,
@@ -104,7 +104,7 @@ function Portfolio() {
         }
     };
 
-    const [userId, setUserId] = useState("testUser");
+    const [userId, setUserId] = useState("user2");
     const [ticker, setTicker] = useState("");
     const [avgPrice, setAvgPrice] = useState();
     const [quantity, setQuantity] = useState();
@@ -116,7 +116,7 @@ function Portfolio() {
             setIsDialogOpen(false);
             fetchStocks()
         } else {
-            alert.error('주식 추가 실패:', result.error);
+            alert('주식 추가 실패:', result.error);
         }
     }
 
@@ -236,15 +236,18 @@ function Portfolio() {
                     {/* Classification */}
                     <div className="bg-white p-6 rounded-lg shadow">
                         <h2 className="text-xl font-medium mb-6">분류하기</h2>
-                        <div className="space-y-4">
+                        <div className="flex flex-row">
                             <input
                                 type="text"
                                 placeholder="예시) 금리 인하"
-                                className="w-full px-4 py-2 border rounded-lg"
+                                className="flex-grow px-4 py-2 border rounded-lg"
                             />
                             <button
-                                className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
-                                AI 분류 시작
+                                className="text-white font-bold w-36 ml-2 px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90"
+                                style={{
+                                    background: 'linear-gradient(-45deg, #3498DB 0%, #7474C7 50%, #A72B75 100%)'
+                                }}>
+                                ✨ AI 분류 시작
                             </button>
                         </div>
                     </div>
@@ -276,11 +279,11 @@ function Portfolio() {
                             </thead>
                             <tbody>
                             {tableData.map((row, index) => (
-                                <tr key={index} className="border-b" onClick={() => openUpdateDialog(row.ticker, row.avgPrice, row.quantity)}>
+                                <tr key={index} className="border-b cursor-pointer" onClick={() => openUpdateDialog(row.ticker, row.avgPrice, row.quantity)}>
                                     <td className="px-4 py-2">
-                      <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
-                        {row.type}
-                      </span>
+                                        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
+                                          {row.type}
+                                        </span>
                                     </td>
                                     <td className="px-4 py-2">{row.ticker}</td>
                                     <td className="px-4 py-2">{row.avgPrice.toLocaleString()}원</td>
