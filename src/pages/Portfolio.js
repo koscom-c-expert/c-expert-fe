@@ -368,18 +368,25 @@ function Portfolio() {
                         </nav>
                         {/* User Profile */}
                         <div className="flex flex-row justify-between items-center space-x-2 w-32 cursor-pointer"
-                            onClick={() => setIsUserDialogOpen(true)}>
-                            <div className="flex flex-row items-center">
-                                <div
-                                    className="w-9 h-9 rounded-3xl content-center"
-                                    style={{
-                                        background: 'linear-gradient(90deg, #3498DB 0%, #7474C7 100%)'
-                                    }}>
-                                    <p className="font-bold text-white text-xl">{userId.length >= 1 ? userId.charAt(0) : ``}</p>
-                                </div>
-                                <span className="truncate ml-2">{userId}</span>
-                            </div>
-                            <img className="size-4" src={DownArrow}/>
+                             onClick={() => setIsUserDialogOpen(true)}>
+                            {userId.length >= 1 ?
+                                (<div className="flex flex-row items-center">
+                                    <div
+                                        className="w-9 h-9 rounded-3xl content-center"
+                                        style={{
+                                            background: 'linear-gradient(90deg, #3498DB 0%, #7474C7 100%)'
+                                        }}>
+                                        <p className="font-bold text-white text-xl">{userId.charAt(0)}</p>
+                                    </div>
+                                    <span className="truncate ml-2">{userId}</span>
+                                </div>)
+                                : (
+                                    <p className="text-sm">로그인이 필요합니다</p>
+                                )
+                            }
+                            {userId.length >= 1 && (
+                                <img className="size-4" src={DownArrow}/>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -391,9 +398,9 @@ function Portfolio() {
                 <h1 className="text-3xl font-bold mb-8 text-left">내 포트폴리오.</h1>
 
                 {/* Portfolio Overview and Classification */}
-                { chartData.length >= 1 &&
+                {chartData.length >= 1 &&
                     (<div className="grid lg:grid-cols-2 gap-8 mb-8 items-start">
-                        {/* Portfolio Overview */}
+                    {/* Portfolio Overview */}
                         <div className="bg-white p-6 rounded-lg shadow">
                             <h2 className="text-xl font-medium mb-6">포트폴리오 개요</h2>
                             <div className="flex flex-col lg:flex-row">
