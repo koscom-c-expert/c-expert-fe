@@ -67,6 +67,39 @@ const addStock = async (userId, ticker, averagePurchasePrice, quantity) => {
     }
 };
 
+const updateStock = async (userId, stockId, ticker, averagePurchasePrice, quantity) => {
+    try {
+        const response = await fetch('/api/v1/stocks/' + stockId, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId,
+                ticker,
+                averagePurchasePrice,
+                quantity
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return {
+            success: true,
+            data
+        };
+    } catch (error) {
+        console.error('Error adding stock:', error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : '주식 수정 중 오류가 발생했습니다.'
+        };
+    }
+};
+
 function Portfolio() {
     const navigate = useNavigate();
 
@@ -89,11 +122,11 @@ function Portfolio() {
         try {
             const response = await fetch('/api/v1/stocks?userId='+userId);
             const result = await response.json();
-            console.log(result);
 
             if (result.status === 'success' && result.data) {
                 const transformedData = result.data.map(item => ({
                     type: "분류 전", // Default classification
+                    id: item.id,
                     ticker: item.ticker,
                     avgPrice: item.averagePurchasePrice,
                     quantity: item.quantity,
@@ -107,14 +140,22 @@ function Portfolio() {
         }
     };
 
+    const [stockId, setStockId] = useState();
     const [ticker, setTicker] = useState("");
     const [avgPrice, setAvgPrice] = useState();
     const [quantity, setQuantity] = useState();
 
-    const addNewStock = async () => {
-        const result = await addStock(userId, ticker, avgPrice, quantity);
-        if (result.success) {
+    const onClickAddOrModify = async () => {
+        let result;
+        if (isUpdateDialog) {
+            result = await updateStock(userId, stockId, ticker, avgPrice, quantity);
+            alert('주식이 성공적으로 수정되었습니다.');
+        } else {
+            result = await addStock(userId, ticker, avgPrice, quantity);
             alert('주식이 성공적으로 추가되었습니다.');
+        }
+
+        if (result.success) {
             setIsDialogOpen(false);
             fetchStocks()
         } else {
@@ -130,7 +171,8 @@ function Portfolio() {
         setIsDialogOpen(true);
     }
 
-    const openUpdateDialog = (ticker, avgPrice, quantity) => {
+    const openUpdateDialog = (stockId, ticker, avgPrice, quantity) => {
+        setStockId(stockId);
         setTicker(ticker);
         setAvgPrice(avgPrice);
         setQuantity(quantity);
@@ -281,7 +323,7 @@ function Portfolio() {
                             </thead>
                             <tbody>
                             {tableData.map((row, index) => (
-                                <tr key={index} className="border-b cursor-pointer" onClick={() => openUpdateDialog(row.ticker, row.avgPrice, row.quantity)}>
+                                <tr key={index} className="border-b cursor-pointer" onClick={() => openUpdateDialog(row.id, row.ticker, row.avgPrice, row.quantity)}>
                                     <td className="px-4 py-2">
                                         <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
                                           {row.type}
@@ -355,7 +397,9 @@ function Portfolio() {
                             <div className="flex justify-between items-center">
                                 {
                                     isUpdateDialog ? (
-                                        <p className="px-4 py-2 text-gray-400 cursor-pointer">제거하기</p>
+                                        <p className="px-4 py-2 text-gray-400 cursor-pointer">
+                                            제거하기
+                                        </p>
                                     ) : (<p></p>)
                                 }
                                 <div className="flex justify-end space-x-2 pt-4">
@@ -367,7 +411,7 @@ function Portfolio() {
                                     </button>
                                     <button
                                         className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
-                                        onClick={() => addNewStock()}
+                                        onClick={() => onClickAddOrModify()}
                                     >
                                         확인
                                     </button>
