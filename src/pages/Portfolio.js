@@ -64,7 +64,6 @@ function Portfolio() {
             try {
                 const response = await fetch('/api/v1/stocks?userId=testUser');
                 const result = await response.json();
-                console.log(result);
 
                 if (result.status === 'success' && result.data) {
                     const transformedData = result.data.map(item => ({
@@ -98,7 +97,7 @@ function Portfolio() {
                     <div className="h-16 flex items-center justify-between">
                         {/* Logo and Navigation */}
                         <img src={Logo} alt="Logo" className="h-8 cursor-pointer" onClick={() => navigate("/")}/>
-                        <nav className="flex space-x-16">
+                        <nav className="flex space-x-16 invisible lg:visible">
                             <p onClick={() => navigate("/")} className="flex items-center text-gray-600 hover:text-gray-900 cursor-pointer">
                                 홈
                             </p>

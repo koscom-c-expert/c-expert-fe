@@ -23,7 +23,7 @@ function Home() {
                     <div className="h-16 flex items-center justify-between">
                         {/* Logo and Navigation */}
                         <img src={Logo} alt="Logo" className="h-8 cursor-pointer" onClick={() => navigate("/")}/>
-                        <nav className="flex space-x-16">
+                        <nav className="flex space-x-16 invisible lg:visible">
                             <p onClick={() => navigate("/")} className="flex items-center text-gray-900 font-medium cursor-pointer">
                                 홈
                             </p>
@@ -33,7 +33,7 @@ function Home() {
                         </nav>
                         {/* 무료로 시작하기 */}
                         <div className="flex items-center cursor-pointer rounded-3xl bg-black pt-2 pb-2 pl-4 pr-4">
-                            <p className="text-white text-sm font-bold" onClick={() => navigate("/portfolio")}>무료로 시작하기</p>
+                            <p className="text-white text-sm font-bold whitespace-nowrap" onClick={() => navigate("/portfolio")}>시작하기</p>
                         </div>
                     </div>
                 </div>
