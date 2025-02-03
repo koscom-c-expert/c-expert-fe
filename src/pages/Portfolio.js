@@ -203,7 +203,7 @@ function Portfolio() {
         }
     }
 
-    const classify = async () => {
+    const classify = async (_keyword) => {
         setIsLoading(true);
         try {
             const response = await fetch('/api/v1/classification', {
@@ -212,7 +212,7 @@ function Portfolio() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    "keyword": keyword,
+                    "keyword": _keyword,
                     "userId": userId
                 }),
             });
@@ -368,8 +368,8 @@ function Portfolio() {
                                                 {item.value.toLocaleString()}원
                                                 <span className="px-3 py-1 rounded-full text-white text-sm"
                                                       style={{backgroundColor: item.color}}>
-                                                {Math.round((item.value / totalValueSum) * 100)}%
-                                            </span>
+                                                    {Math.round((item.value / totalValueSum) * 100)}%
+                                                </span>
                                             </div>
                                         </div>
                                     ))}
@@ -383,36 +383,55 @@ function Portfolio() {
                             <div className="flex flex-row">
                                 <input
                                     type="text"
-                                    placeholder="예시) 금리 인하"
+                                    placeholder="예시) 절세 계좌에서 살 수 있는 주식 분류"
                                     className="flex-grow px-4 py-2 border rounded-lg"
                                     value={keyword}
                                     onChange={(e) => setKeyword(e.target.value)}
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
-                                            classify();
+                                            classify(keyword);
                                         }
                                     }}
                                 />
                                 <button
                                     className="text-white font-bold w-36 ml-2 px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90 whitespace-nowrap"
-                                    onClick={() => classify()}
+                                    onClick={() => {
+                                        classify(keyword);
+                                    }}
                                     style={{
                                         background: 'linear-gradient(-45deg, #3498DB 0%, #7474C7 50%, #A72B75 100%)'
                                     }}>
                                     ✨ AI 분류 시작
                                 </button>
                             </div>
+                            <div className="mt-2 ms-1 flex flex-row justify-start space-x-1">
+                                <span className="px-3 py-1 rounded-full text-white text-sm bg-gray-400 cursor-pointer"
+                                      onClick={() => classify("금리 인하")}>
+                                    금리 인하
+                                </span>
+                                <span className="px-3 py-1 rounded-full text-white text-sm bg-gray-400 cursor-pointer"
+                                      onClick={() => classify("국가별 분류")}>
+                                    국가별 분류
+                                </span>
+                                <span className="px-3 py-1 rounded-full text-white text-sm bg-gray-400 cursor-pointer"
+                                      onClick={() => classify("섹터")}>
+                                    섹터
+                                </span>
+                            </div>
+                            <p className="text-left mt-4 text-gray-500 italic">📙 AI 분류 팁 - 디테일하게 질문할수록 더욱 좋은 결과를 얻을 수
+                                있어요!</p>
                         </div>
                     </div>)
                 }
 
                 {/* Holdings */}
                 <div className="bg-white p-6 rounded-lg shadow">
-                    <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-medium">보유 종목 현황</h2>
                         <button
                             onClick={() => openCreateDialog()}
-                            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            className="flex items-center px-4 py-2 text-white rounded-lg"
+                            style={{ backgroundColor: '#4A90E2' }}>
                             <Plus className="w-4 h-4 mr-2"/>
                             종목 추가
                         </button>
