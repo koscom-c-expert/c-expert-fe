@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import Logo from '../assets/logo-on-white.png';
 import DownArrow from '../assets/down_arrow.svg';
 import {PieChart, Pie, Cell} from 'recharts';
-import {Home, User, Plus, X} from 'lucide-react';
+import {User, Plus, X} from 'lucide-react';
 
 // tableData를 기반으로 chartData를 계산하는 함수
 const getChartData = (data) => {
@@ -40,7 +40,7 @@ function Portfolio() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const [tableData, setTableData] = useState([
-        {type: "트럼프 수혜주", symbol: "APP1", avgPrice: 12345, holding: 67, totalValue: 1234567},
+        /*{type: "트럼프 수혜주", symbol: "APP1", avgPrice: 12345, holding: 67, totalValue: 1234567},
         {type: "트럼프 악재주", symbol: "APP2", avgPrice: 11200, holding: 50, totalValue: 560000},
         {type: "나머지", symbol: "APP3", avgPrice: 9870, holding: 120, totalValue: 1184400},
         {type: "트럼프 수혜주", symbol: "APP4", avgPrice: 15230, holding: 30, totalValue: 456900},
@@ -49,7 +49,7 @@ function Portfolio() {
         {type: "트럼프 수혜주", symbol: "APP7", avgPrice: 14500, holding: 42, totalValue: 609000},
         {type: "트럼프 악재주", symbol: "APP8", avgPrice: 10700, holding: 88, totalValue: 941600},
         {type: "나머지", symbol: "APP9", avgPrice: 7990, holding: 70, totalValue: 559300},
-        {type: "트럼프 수혜주", symbol: "APP10", avgPrice: 19500, holding: 25, totalValue: 487500}
+        {type: "트럼프 수혜주", symbol: "APP10", avgPrice: 19500, holding: 25, totalValue: 487500}*/
     ]);
 
 
@@ -58,6 +58,32 @@ function Portfolio() {
 
     // chartData state (tableData 변경 시 자동 갱신)
     const [chartData, setChartData] = useState([]);
+
+    useEffect(() => {
+        const fetchStocks = async () => {
+            try {
+                const response = await fetch('/api/v1/stocks?userId=testUser');
+                const result = await response.json();
+                console.log(result);
+
+                if (result.status === 'success' && result.data) {
+                    const transformedData = result.data.map(item => ({
+                        type: "내 주식", // Default classification
+                        symbol: item.ticker,
+                        avgPrice: item.averagePurchasePrice,
+                        holding: item.quantity,
+                        totalValue: item.averagePurchasePrice * item.quantity
+                    }));
+
+                    setTableData(transformedData);
+                }
+            } catch (error) {
+                console.error('Failed to fetch stocks:', error);
+            }
+        };
+
+        fetchStocks();
+    }, []);
 
     // tableData가 변경될 때마다 chartData 재계산
     useEffect(() => {
