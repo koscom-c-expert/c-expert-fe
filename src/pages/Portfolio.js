@@ -135,6 +135,7 @@ function Portfolio() {
 
     const [isStockDialogOpen, setIsStockDialogOpen] = useState(false);
     const [isUpdateDialog, setIsUpdateDialog] = useState(false);
+    const [isPopupVisible, setIsPopupVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const [keyword, setKeyword] = useState("");
@@ -303,41 +304,12 @@ function Portfolio() {
         );
     };
 
-    const PopupNotification = () => {
-        const [isVisible, setIsVisible] = useState(false);
-
-        useEffect(() => {
-            const timer = setTimeout(() => {
-                setIsVisible(true);
-            }, 5000);
-
-            return () => clearTimeout(timer);
-        }, []);
-
-        if (!isVisible) return null;
-
-        return (
-            <div className="fixed bottom-4 right-4 max-w-sm bg-white rounded-lg shadow-lg p-4 transition-all duration-300 transform translate-y-0 opacity-100 cursor-pointer"
-                onClick={() => {classify("딥시크 수혜주")}}>
-                <div className="flex justify-between items-start">
-                    <div className="pr-8">
-                        <p className="font-bold mb-1">
-                            🔥 <span className="text-gray-600">이번 주 인기 키워드:</span> '딥시크 수혜주'
-                        </p>
-                        <p className="text-sm text-gray-600">
-                            이 카드를 클릭하면 <span className="font-bold">내 포트폴리오 맞춤 분석</span>이 시작됩니다! 🚀
-                        </p>
-                    </div>
-                    <button
-                        onClick={() => setIsVisible(false)}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                        <X className="w-4 h-4" />
-                    </button>
-                </div>
-            </div>
-        );
-    };
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsPopupVisible(true);
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
         if (userId.length >= 1) {
@@ -731,7 +703,34 @@ function Portfolio() {
                 </div>
             )}
 
-            <PopupNotification />
+            {isPopupVisible && (
+                <div
+                    className="fixed bottom-4 right-4 max-w-sm bg-white rounded-lg shadow-lg p-4 transition-all duration-300 transform translate-y-0 opacity-100 cursor-pointer"
+                    onClick={() => {
+                        classify("딥시크 수혜주");
+                        setIsPopupVisible(false);
+                    }}>
+                    <div className="flex justify-between items-start">
+                        <div className="pr-8">
+                            <p className="font-bold mb-1">
+                                🔥 <span className="text-gray-600">이번 주 인기 키워드:</span> '딥시크 수혜주'
+                            </p>
+                            <p className="text-sm text-gray-600">
+                                이 카드를 클릭하면 <span className="font-bold">내 포트폴리오 맞춤 분석</span>이 시작됩니다! 🚀
+                            </p>
+                        </div>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsPopupVisible(false);
+                            }}
+                            className="text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            <X className="w-4 h-4"/>
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
