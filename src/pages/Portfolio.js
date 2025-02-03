@@ -2,7 +2,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 import Logo from '../assets/logo-on-white.png';
 import DownArrow from '../assets/down_arrow.svg';
-import {PieChart, Pie, Cell} from 'recharts';
+import {PieChart, Pie, Cell, Tooltip} from 'recharts';
 import {User, Plus, X} from 'lucide-react';
 
 // tableData를 기반으로 chartData를 계산하는 함수
@@ -318,6 +318,11 @@ function Portfolio() {
                             <div className="flex flex-col lg:flex-row">
                                 <div className="lg:w-1/2">
                                     <div className="relative w-64 h-64 mx-auto">
+                                        <div
+                                            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-32">
+                                            <div className="text-sm text-gray-600">총 자산</div>
+                                            <div className="text-xl font-bold">{totalValueSum.toLocaleString()}원</div>
+                                        </div>
                                         <PieChart width={256} height={256}>
                                             <Pie
                                                 data={chartData}
@@ -332,12 +337,25 @@ function Portfolio() {
                                                     <Cell key={index} fill={entry.color}/>
                                                 ))}
                                             </Pie>
+                                            <Tooltip
+                                                formatter={(value, name, props) => [
+                                                    `${value.toLocaleString()}원 (${props.payload.percentage}%)`,
+                                                    props.payload.name
+                                                ]}
+                                                contentStyle={{
+                                                    backgroundColor: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '8px',
+                                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                                                    transform: 'translate(-50%, -50%)'
+                                                }}
+                                                itemStyle={{
+                                                    color: '#666666'
+                                                }}
+                                                cursor={false}
+                                                position={{ x: 128, y: 128 }}
+                                            />
                                         </PieChart>
-                                        <div
-                                            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-32">
-                                            <div className="text-sm text-gray-600">총 자산</div>
-                                            <div className="text-xl font-bold">{totalValueSum.toLocaleString()}원</div>
-                                        </div>
                                     </div>
                                 </div>
                                 <div className="lg:w-1/2 pl-6">
