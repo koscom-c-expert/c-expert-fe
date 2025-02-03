@@ -307,76 +307,78 @@ function Portfolio() {
                 <h1 className="text-3xl font-bold mb-8 text-left">내 포트폴리오.</h1>
 
                 {/* Portfolio Overview and Classification */}
-                <div className="grid lg:grid-cols-2 gap-8 mb-8 items-start">
-                    {/* Portfolio Overview */}
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <h2 className="text-xl font-medium mb-6">포트폴리오 개요</h2>
-                        <div className="flex flex-col lg:flex-row">
-                            <div className="lg:w-1/2 relative">
-                                <div className="w-64 h-64 mx-auto">
-                                    <PieChart width={256} height={256}>
-                                        <Pie
-                                            data={chartData}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={80}
-                                            outerRadius={120}
-                                            paddingAngle={2}
-                                            dataKey="value"
-                                        >
-                                            {chartData.map((entry, index) => (
-                                                <Cell key={index} fill={entry.color}/>
-                                            ))}
-                                        </Pie>
-                                    </PieChart>
-                                    <div
-                                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-                                        <div className="text-sm text-gray-600">총 자산</div>
-                                        <div className="text-xl font-bold">{totalValueSum.toLocaleString()}원</div>
+                { chartData.length >= 1 &&
+                    (<div className="grid lg:grid-cols-2 gap-8 mb-8 items-start">
+                        {/* Portfolio Overview */}
+                        <div className="bg-white p-6 rounded-lg shadow">
+                            <h2 className="text-xl font-medium mb-6">포트폴리오 개요</h2>
+                            <div className="flex flex-col lg:flex-row">
+                                <div className="lg:w-1/2 relative">
+                                    <div className="w-64 h-64 mx-auto">
+                                        <PieChart width={256} height={256}>
+                                            <Pie
+                                                data={chartData}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={80}
+                                                outerRadius={120}
+                                                paddingAngle={2}
+                                                dataKey="value"
+                                            >
+                                                {chartData.map((entry, index) => (
+                                                    <Cell key={index} fill={entry.color}/>
+                                                ))}
+                                            </Pie>
+                                        </PieChart>
+                                        <div
+                                            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                                            <div className="text-sm text-gray-600">총 자산</div>
+                                            <div className="text-xl font-bold">{totalValueSum.toLocaleString()}원</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="lg:w-1/2 pl-6">
-                                {chartData.map((item, index) => (
-                                    <div key={index} className="mb-6">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <span className="text-gray-600">{item.name}</span>
-                                        </div>
-                                        <div className="flex justify-between text-xl font-bold">
-                                            {item.value.toLocaleString()}원
-                                            <span className="px-3 py-1 rounded-full text-white text-sm"
-                                                  style={{backgroundColor: item.color}}>
+                                <div className="lg:w-1/2 pl-6">
+                                    {chartData.map((item, index) => (
+                                        <div key={index} className="mb-6">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <span className="text-gray-600">{item.name}</span>
+                                            </div>
+                                            <div className="flex justify-between text-xl font-bold">
+                                                {item.value.toLocaleString()}원
+                                                <span className="px-3 py-1 rounded-full text-white text-sm"
+                                                      style={{backgroundColor: item.color}}>
                                                 {Math.round((item.value / totalValueSum) * 100)}%
                                             </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Classification */}
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <h2 className="text-xl font-medium mb-6">분류하기</h2>
-                        <div className="flex flex-row">
-                            <input
-                                type="text"
-                                placeholder="예시) 금리 인하"
-                                className="flex-grow px-4 py-2 border rounded-lg"
-                                value={keyword}
-                                onChange={(e) => setKeyword(e.target.value)}
-                            />
-                            <button
-                                className="text-white font-bold w-36 ml-2 px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90"
-                                onClick={() => classify()}
-                                style={{
-                                    background: 'linear-gradient(-45deg, #3498DB 0%, #7474C7 50%, #A72B75 100%)'
-                                }}>
-                                ✨ AI 분류 시작
-                            </button>
+                        {/* Classification */}
+                        <div className="bg-white p-6 rounded-lg shadow">
+                            <h2 className="text-xl font-medium mb-6">분류하기</h2>
+                            <div className="flex flex-row">
+                                <input
+                                    type="text"
+                                    placeholder="예시) 금리 인하"
+                                    className="flex-grow px-4 py-2 border rounded-lg"
+                                    value={keyword}
+                                    onChange={(e) => setKeyword(e.target.value)}
+                                />
+                                <button
+                                    className="text-white font-bold w-36 ml-2 px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90"
+                                    onClick={() => classify()}
+                                    style={{
+                                        background: 'linear-gradient(-45deg, #3498DB 0%, #7474C7 50%, #A72B75 100%)'
+                                    }}>
+                                    ✨ AI 분류 시작
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </div>)
+                }
 
                 {/* Holdings */}
                 <div className="bg-white p-6 rounded-lg shadow">
@@ -403,19 +405,30 @@ function Portfolio() {
                             </tr>
                             </thead>
                             <tbody>
-                            {tableData.map((row, index) => (
-                                <tr key={index} className="border-b cursor-pointer" onClick={() => openUpdateDialog(row.id, row.ticker, row.avgPrice, row.quantity)}>
-                                    <td className="px-4 py-2">
+                            {
+                                tableData.length >= 1 ? (
+                                    tableData.map((row, index) => (
+                                        <tr key={index} className="border-b cursor-pointer"
+                                            onClick={() => openUpdateDialog(row.id, row.ticker, row.avgPrice, row.quantity)}>
+                                            <td className="px-4 py-2">
                                         <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
                                           {row.type}
                                         </span>
-                                    </td>
-                                    <td className="px-4 py-2">{row.ticker}</td>
-                                    <td className="px-4 py-2">{row.avgPrice.toLocaleString()}원</td>
-                                    <td className="px-4 py-2">{row.quantity}주</td>
-                                    <td className="px-4 py-2">{row.totalValue.toLocaleString()}원</td>
-                                </tr>
-                            ))}
+                                            </td>
+                                            <td className="px-4 py-2">{row.ticker}</td>
+                                            <td className="px-4 py-2">{row.avgPrice.toLocaleString()}원</td>
+                                            <td className="px-4 py-2">{row.quantity}주</td>
+                                            <td className="px-4 py-2">{row.totalValue.toLocaleString()}원</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="5" className="text-center py-8 text-gray-500">
+                                            보유하고 계신 주식을 추가해주세요.
+                                        </td>
+                                    </tr>
+                                )
+                            }
                             </tbody>
                         </table>
                     </div>
@@ -434,7 +447,7 @@ function Portfolio() {
                                 onClick={() => setIsDialogOpen(false)}
                                 className="rounded-full p-1 hover:bg-gray-100"
                             >
-                                <X className="w-4 h-4" />
+                                <X className="w-4 h-4"/>
                             </button>
                         </div>
 
