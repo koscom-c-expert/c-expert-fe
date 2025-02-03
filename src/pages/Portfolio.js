@@ -165,7 +165,7 @@ function Portfolio() {
                 setTableData(transformedData);
             }
         } catch (error) {
-            alert('작업을 처리하는 데 문제가 발생했습니다:', error);
+            alert('작업을 처리하는 데 문제가 발생했습니다.');
             console.error('Failed to fetch stocks:', error);
         }
     };
@@ -178,7 +178,7 @@ function Portfolio() {
                 setIsDialogOpen(false);
                 fetchStocks()
             } else {
-                alert('작업을 처리하는 데 문제가 발생했습니다:', result.error);
+                alert('작업을 처리하는 데 문제가 발생했습니다.');
             }
         } else {
             const result = await addStock(userId, ticker, avgPrice, quantity);
@@ -187,7 +187,7 @@ function Portfolio() {
                 setIsDialogOpen(false);
                 fetchStocks()
             } else {
-                alert('작업을 처리하는 데 문제가 발생했습니다:', result.error);
+                alert('작업을 처리하는 데 문제가 발생했습니다.');
             }
         }
     }
@@ -199,7 +199,7 @@ function Portfolio() {
             setIsDialogOpen(false);
             fetchStocks()
         } else {
-            alert('작업을 처리하는 데 문제가 발생했습니다:', result.error);
+            alert('작업을 처리하는 데 문제가 발생했습니다.');
         }
     }
 
@@ -237,7 +237,7 @@ function Portfolio() {
                 setTableData(updatedTableData);
             }
         } catch (error) {
-            alert('작업을 처리하는 데 문제가 발생했습니다:', error);
+            alert('작업을 처리하는 데 문제가 발생했습니다.');
             console.error('Failed to fetch stocks:', error);
         } finally {
             setIsLoading(false);
