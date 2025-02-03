@@ -383,9 +383,9 @@ function Portfolio() {
                                         </PieChart>
                                     </div>
                                 </div>
-                                <div className="lg:w-1/2 pl-6">
+                                <div className="lg:w-1/2 pl-6 flex flex-col items-center">
                                     {displayData.map((item, index) => (
-                                        <div key={index} className="mb-6">
+                                        <div key={index} className="mb-6 w-full">
                                             <div className="flex justify-between items-center mb-1">
                                                 <span className="text-gray-600 truncate">{item.name}</span>
                                             </div>
@@ -400,12 +400,14 @@ function Portfolio() {
                                     ))}
 
                                     {hasMoreItems && (
-                                        <button
-                                            onClick={() => setShowAll(!showAll)}
-                                            className="w-full py-2 text-gray-500 transition-colors"
-                                        >
-                                            {showAll ? '접기' : `더보기 (${chartData.length - 3})`}
-                                        </button>
+                                        <div className="flex flex-row items-center space-x-1.5 cursor-pointer"
+                                             onClick={() => setShowAll(!showAll)}>
+                                            <p className="text-gray-500">{showAll ? '접기' : `더보기`}</p>
+                                            <img
+                                                src={DownArrow}
+                                                className={`size-4 transition-transform duration-200 ${showAll ? 'rotate-180' : ''}`}
+                                            />
+                                        </div>
                                     )}
                                 </div>
                             </div>
