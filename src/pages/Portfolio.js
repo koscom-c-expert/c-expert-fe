@@ -128,10 +128,12 @@ const deleteStock = async (stockId) => {
 function Portfolio() {
     const navigate = useNavigate();
 
-    const [username, setUsername] = useState("Guest");
-    const [userId, setUserId] = useState("user1");
+    // 사용자 아이디 입력
+    const [userId, setUserId] = useState("");
+    const [isUserDialogOpen, setIsUserDialogOpen] = useState(true);
+    const [userIdInput, setUserIdInput] = useState("");
 
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isStockDialogOpen, setIsStockDialogOpen] = useState(false);
     const [isUpdateDialog, setIsUpdateDialog] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -195,7 +197,7 @@ function Portfolio() {
             const result = await updateStock(userId, stockId, ticker, avgPrice, quantity);
             if (result.success) {
                 alert('주식을 성공적으로 수정하였습니다.');
-                setIsDialogOpen(false);
+                setIsStockDialogOpen(false);
                 fetchStocks()
             } else {
                 alert('작업을 처리하는 데 문제가 발생했습니다.');
@@ -204,7 +206,7 @@ function Portfolio() {
             const result = await addStock(userId, ticker, avgPrice, quantity);
             if (result.success) {
                 alert('주식을 성공적으로 추가하였습니다.');
-                setIsDialogOpen(false);
+                setIsStockDialogOpen(false);
                 fetchStocks()
             } else {
                 alert('작업을 처리하는 데 문제가 발생했습니다.');
@@ -216,7 +218,7 @@ function Portfolio() {
         const result = await deleteStock(stockId);
         if (result.success) {
             alert('주식을 성공적으로 삭제하였습니다.');
-            setIsDialogOpen(false);
+            setIsStockDialogOpen(false);
             fetchStocks()
         } else {
             alert('작업을 처리하는 데 문제가 발생했습니다.');
@@ -269,7 +271,7 @@ function Portfolio() {
         setAvgPrice();
         setQuantity();
         setIsUpdateDialog(false);
-        setIsDialogOpen(true);
+        setIsStockDialogOpen(true);
     }
 
     const openUpdateDialog = (stockId, ticker, avgPrice, quantity) => {
@@ -278,12 +280,14 @@ function Portfolio() {
         setAvgPrice(avgPrice);
         setQuantity(quantity);
         setIsUpdateDialog(true);
-        setIsDialogOpen(true);
+        setIsStockDialogOpen(true);
     }
 
     useEffect(() => {
-        fetchStocks();
-    }, []);
+        if (userId.length >= 1) {
+            fetchStocks();
+        }
+    }, [userId]);
 
     // tableData가 변경될 때마다 chartData 재계산
     useEffect(() => {
@@ -307,16 +311,17 @@ function Portfolio() {
                             </p>
                         </nav>
                         {/* User Profile */}
-                        <div className="flex flex-row justify-between items-center space-x-2 w-32 cursor-pointer">
+                        <div className="flex flex-row justify-between items-center space-x-2 w-32 cursor-pointer"
+                            onClick={() => setIsUserDialogOpen(true)}>
                             <div className="flex flex-row items-center">
                                 <div
                                     className="w-9 h-9 rounded-3xl content-center"
                                     style={{
                                         background: 'linear-gradient(90deg, #3498DB 0%, #7474C7 100%)'
                                     }}>
-                                    <p className="font-bold text-white text-xl">{username.charAt(0)}</p>
+                                    <p className="font-bold text-white text-xl">{userId.length >= 1 ? userId.charAt(0) : ``}</p>
                                 </div>
-                                <span className="truncate ml-2">{username}</span>
+                                <span className="truncate ml-2">{userId}</span>
                             </div>
                             <img className="size-4" src={DownArrow}/>
                         </div>
@@ -511,14 +516,14 @@ function Portfolio() {
 
 
             {/* Custom Modal */}
-            {isDialogOpen && (
+            {isStockDialogOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg w-[425px] relative">
                         {/* Header */}
                         <div className="px-6 py-4 flex justify-between items-center">
                             <h2 className="text-xl font-medium">{isUpdateDialog ? `종목 편집` : `종목 추가`}</h2>
                             <button
-                                onClick={() => setIsDialogOpen(false)}
+                                onClick={() => setIsStockDialogOpen(false)}
                                 className="rounded-full p-1 hover:bg-gray-100"
                             >
                                 <X className="w-4 h-4"/>
@@ -572,7 +577,7 @@ function Portfolio() {
                                 }
                                 <div className="flex justify-end space-x-2 pt-4">
                                     <button
-                                        onClick={() => setIsDialogOpen(false)}
+                                        onClick={() => setIsStockDialogOpen(false)}
                                         className="px-4 py-2 border rounded-lg hover:bg-gray-50"
                                     >
                                         취소
@@ -580,6 +585,60 @@ function Portfolio() {
                                     <button
                                         className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
                                         onClick={() => onClickAddOrModify()}
+                                    >
+                                        확인
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* User id Modal */}
+            {isUserDialogOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg w-[425px] relative">
+                        {/* Header */}
+                        <div className="px-6 pt-4 flex justify-between items-center">
+                            <h2 className="text-xl font-medium">로그인</h2>
+                            <button
+                                onClick={() => setIsUserDialogOpen(false)}
+                                className="rounded-full p-1 hover:bg-gray-100"
+                            >
+                                <X className="w-4 h-4"/>
+                            </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6 space-y-4">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-left">사용자 아이디</label>
+                                <input
+                                    type="text"
+                                    placeholder="user1"
+                                    className="w-full px-4 py-2 border rounded-lg"
+                                    value={userIdInput}
+                                    onChange={(e) => setUserIdInput(e.target.value)}
+                                />
+                            </div>
+
+                            {/* Buttons */}
+                            <div className="flex justify-between items-center">
+                                <p></p>
+                                <div className="flex justify-end space-x-2">
+                                    <button
+                                        onClick={() => setIsUserDialogOpen(false)}
+                                        className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                                    >
+                                        취소
+                                    </button>
+                                    <button
+                                        className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+                                        onClick={() => {
+                                            setUserId(userIdInput);
+                                            setIsUserDialogOpen(false);
+                                        }}
                                     >
                                         확인
                                     </button>
