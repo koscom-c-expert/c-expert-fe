@@ -119,6 +119,7 @@ function Portfolio() {
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-medium">보유 종목 현황</h2>
                         <button
+                            onClick={() => setIsDialogOpen(true)}
                             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                             <Plus className="w-4 h-4 mr-2"/>
                             종목 추가
@@ -156,6 +157,74 @@ function Portfolio() {
                     </div>
                 </div>
             </main>
+
+
+            {/* Custom Modal */}
+            {isDialogOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg w-[425px] relative">
+                        {/* Header */}
+                        <div className="px-6 py-4 flex justify-between items-center">
+                            <h2 className="text-xl font-medium">종목 편집</h2>
+                            <button
+                                onClick={() => setIsDialogOpen(false)}
+                                className="rounded-full p-1 hover:bg-gray-100"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6 space-y-4">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-left">종목명</label>
+                                <input
+                                    type="text"
+                                    placeholder="APPL"
+                                    className="w-full px-4 py-2 border rounded-lg"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-left">평균매입가</label>
+                                    <input
+                                        type="text"
+                                        placeholder="1,234,567"
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-left">보유 수량</label>
+                                    <input
+                                        type="text"
+                                        placeholder="12"
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Buttons */}
+                            <div className="flex justify-between items-center">
+                                <p className="px-4 py-2 text-gray-400 cursor-pointer">제거하기</p>
+                                <div className="flex justify-end space-x-2 pt-4">
+                                    <button
+                                        onClick={() => setIsDialogOpen(false)}
+                                        className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                                    >
+                                        취소
+                                    </button>
+                                    <button
+                                        className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+                                    >
+                                        확인
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
