@@ -132,6 +132,7 @@ function Portfolio() {
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isUpdateDialog, setIsUpdateDialog] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [keyword, setKeyword] = useState("");
 
@@ -201,6 +202,7 @@ function Portfolio() {
     }
 
     const classify = async () => {
+        setIsLoading(true);
         try {
             const response = await fetch('/api/v1/classification', {
                 method: 'POST',
@@ -234,6 +236,8 @@ function Portfolio() {
             }
         } catch (error) {
             console.error('Failed to fetch stocks:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -495,6 +499,23 @@ function Portfolio() {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {isLoading && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-8 rounded-lg flex flex-col items-center space-y-4">
+                        <div className="w-32 h-1 bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-gradient"
+                                style={{
+                                    width: '100%',
+                                    animation: 'loading 1.5s infinite'
+                                }}
+                            />
+                        </div>
+                        <p className="text-gray-600">분류 진행 중...</p>
                     </div>
                 </div>
             )}
