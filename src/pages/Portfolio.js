@@ -71,6 +71,7 @@ function Portfolio() {
     const navigate = useNavigate();
     const [username, setUsername] = useState("Guest");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isUpdateDialog, setIsUpdateDialog] = useState(false);
 
     const [tableData, setTableData] = useState([]);
 
@@ -117,6 +118,22 @@ function Portfolio() {
         } else {
             alert.error('주식 추가 실패:', result.error);
         }
+    }
+
+    const openCreateDialog = () => {
+        setTicker("");
+        setAvgPrice();
+        setQuantity();
+        setIsUpdateDialog(false);
+        setIsDialogOpen(true);
+    }
+
+    const openUpdateDialog = (ticker, avgPrice, quantity) => {
+        setTicker(ticker);
+        setAvgPrice(avgPrice);
+        setQuantity(quantity);
+        setIsUpdateDialog(true);
+        setIsDialogOpen(true);
     }
 
     useEffect(() => {
@@ -238,7 +255,7 @@ function Portfolio() {
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-medium">보유 종목 현황</h2>
                         <button
-                            onClick={() => setIsDialogOpen(true)}
+                            onClick={() => openCreateDialog()}
                             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                             <Plus className="w-4 h-4 mr-2"/>
                             종목 추가
@@ -259,7 +276,7 @@ function Portfolio() {
                             </thead>
                             <tbody>
                             {tableData.map((row, index) => (
-                                <tr key={index} className="border-b">
+                                <tr key={index} className="border-b" onClick={() => openUpdateDialog(row.ticker, row.avgPrice, row.quantity)}>
                                     <td className="px-4 py-2">
                       <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
                         {row.type}
@@ -284,7 +301,7 @@ function Portfolio() {
                     <div className="bg-white rounded-lg w-[425px] relative">
                         {/* Header */}
                         <div className="px-6 py-4 flex justify-between items-center">
-                            <h2 className="text-xl font-medium">종목 편집</h2>
+                            <h2 className="text-xl font-medium">{isUpdateDialog ? `종목 편집` : `종목 추가`}</h2>
                             <button
                                 onClick={() => setIsDialogOpen(false)}
                                 className="rounded-full p-1 hover:bg-gray-100"
@@ -331,7 +348,11 @@ function Portfolio() {
 
                             {/* Buttons */}
                             <div className="flex justify-between items-center">
-                                <p className="px-4 py-2 text-gray-400 cursor-pointer">제거하기</p>
+                                {
+                                    isUpdateDialog ? (
+                                        <p className="px-4 py-2 text-gray-400 cursor-pointer">제거하기</p>
+                                    ) : (<p></p>)
+                                }
                                 <div className="flex justify-end space-x-2 pt-4">
                                     <button
                                         onClick={() => setIsDialogOpen(false)}
