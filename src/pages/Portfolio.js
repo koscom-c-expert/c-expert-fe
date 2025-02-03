@@ -283,6 +283,25 @@ function Portfolio() {
         setIsStockDialogOpen(true);
     }
 
+    const LoadingMessage = () => {
+        const [currentEmoji, setCurrentEmoji] = useState(0);
+        const emojis = ['🔥', '🍎', '🎈', '💖'];
+
+        useEffect(() => {
+            const interval = setInterval(() => {
+                setCurrentEmoji((prev) => (prev + 1) % emojis.length);
+            }, 500);
+
+            return () => clearInterval(interval);
+        }, []);
+
+        return (
+            <p className="text-gray-600">
+                분류 진행 중...{emojis[currentEmoji]}
+            </p>
+        );
+    };
+
     useEffect(() => {
         if (userId.length >= 1) {
             fetchStocks();
@@ -663,7 +682,7 @@ function Portfolio() {
                                 }}
                             />
                         </div>
-                        <p className="text-gray-600">분류 진행 중...</p>
+                        <LoadingMessage />
                     </div>
                 </div>
             )}
