@@ -5,21 +5,64 @@ import DownArrow from '../assets/down_arrow.svg';
 import {PieChart, Pie, Cell} from 'recharts';
 import {Home, User, Plus, X} from 'lucide-react';
 
+// tableData를 기반으로 chartData를 계산하는 함수
+const getChartData = (data) => {
+    // 각 type별 totalValue 합산
+    const typeSums = {};
+    data.forEach(item => {
+        typeSums[item.type] = (typeSums[item.type] || 0) + item.totalValue;
+    });
+
+    // type별 합계를 배열로 변환 후 totalValue 기준 내림차순 정렬, 상위 3개 선택
+    const sortedTypes = Object.entries(typeSums)
+        .map(([type, totalValue]) => ({ type, totalValue }))
+        .sort((a, b) => b.totalValue - a.totalValue)
+        .slice(0, 3);
+
+    // 상위 3개 totalValue의 총합 (퍼센트 계산용)
+    const totalSum = sortedTypes.reduce((sum, item) => sum + item.totalValue, 0);
+
+    // 상위 3개 순서에 따른 고정 색상 배열
+    const fixedColors = ["#4A90E2", "#8B6BE2", "#B23F9E"];
+
+    // chartData 생성
+    return sortedTypes.map((item, index) => ({
+        name: item.type,
+        value: item.totalValue,
+        percentage: Math.round((item.totalValue / totalSum) * 100),
+        color: fixedColors[index]
+    }));
+};
+
 function Portfolio() {
     const navigate = useNavigate();
     const [username, setUsername] = useState("Guest");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const data = [
-        {name: "트럼프 수혜주", value: 2147783647, percentage: 58, color: "#4A90E2"},
-        {name: "트럼프 악재주", value: 147783647, percentage: 24, color: "#8B6BE2"},
-        {name: "나머지", value: 47783647, percentage: 18, color: "#B23F9E"}
-    ];
 
-    const tableData = [
-        {type: "트럼프 수혜주", symbol: "APPL", avgPrice: "12,345원", holding: "67주", totalValue: "1,234,567원"},
-        {type: "트럼프 수혜주", symbol: "APPL", avgPrice: "12,345원", holding: "67주", totalValue: "1,234,567원"},
-        {type: "트럼프 수혜주", symbol: "APPL", avgPrice: "12,345원", holding: "67주", totalValue: "1,234,567원"}
-    ];
+    const [tableData, setTableData] = useState([
+        {type: "트럼프 수혜주", symbol: "APP1", avgPrice: 12345, holding: 67, totalValue: 1234567},
+        {type: "트럼프 악재주", symbol: "APP2", avgPrice: 11200, holding: 50, totalValue: 560000},
+        {type: "나머지", symbol: "APP3", avgPrice: 9870, holding: 120, totalValue: 1184400},
+        {type: "트럼프 수혜주", symbol: "APP4", avgPrice: 15230, holding: 30, totalValue: 456900},
+        {type: "트럼프 악재주", symbol: "APP5", avgPrice: 8400, holding: 90, totalValue: 756000},
+        {type: "나머지", symbol: "APP6", avgPrice: 22100, holding: 15, totalValue: 331500},
+        {type: "트럼프 수혜주", symbol: "APP7", avgPrice: 14500, holding: 42, totalValue: 609000},
+        {type: "트럼프 악재주", symbol: "APP8", avgPrice: 10700, holding: 88, totalValue: 941600},
+        {type: "나머지", symbol: "APP9", avgPrice: 7990, holding: 70, totalValue: 559300},
+        {type: "트럼프 수혜주", symbol: "APP10", avgPrice: 19500, holding: 25, totalValue: 487500}
+    ]);
+
+
+    // 전체 tableData의 totalValue 합계를 계산
+    const totalValueSum = tableData.reduce((sum, item) => sum + item.totalValue, 0);
+
+    // chartData state (tableData 변경 시 자동 갱신)
+    const [chartData, setChartData] = useState([]);
+
+    // tableData가 변경될 때마다 chartData 재계산
+    useEffect(() => {
+        setChartData(getChartData(tableData));
+    }, [tableData]);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -70,7 +113,7 @@ function Portfolio() {
                                 <div className="w-64 h-64 mx-auto">
                                     <PieChart width={256} height={256}>
                                         <Pie
-                                            data={data}
+                                            data={chartData}
                                             cx="50%"
                                             cy="50%"
                                             innerRadius={80}
@@ -78,7 +121,7 @@ function Portfolio() {
                                             paddingAngle={2}
                                             dataKey="value"
                                         >
-                                            {data.map((entry, index) => (
+                                            {chartData.map((entry, index) => (
                                                 <Cell key={index} fill={entry.color}/>
                                             ))}
                                         </Pie>
@@ -86,12 +129,12 @@ function Portfolio() {
                                     <div
                                         className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
                                         <div className="text-sm text-gray-600">총 자산</div>
-                                        <div className="text-xl font-bold">2,147,783,647원</div>
+                                        <div className="text-xl font-bold">{totalValueSum.toLocaleString()}원</div>
                                     </div>
                                 </div>
                             </div>
                             <div className="w-1/2 pl-6">
-                                {data.map((item, index) => (
+                                {chartData.map((item, index) => (
                                     <div key={index} className="mb-6">
                                         <div className="flex justify-between items-center mb-1">
                                             <span className="text-gray-600">{item.name}</span>
@@ -100,7 +143,7 @@ function Portfolio() {
                                             {item.value.toLocaleString()}원
                                             <span className="px-3 py-1 rounded-full text-white text-sm"
                                                   style={{backgroundColor: item.color}}>
-                                                {Math.round((item.value / 2147783647) * 100)}%
+                                                {Math.round((item.value / totalValueSum) * 100)}%
                                             </span>
                                         </div>
                                     </div>
@@ -159,9 +202,9 @@ function Portfolio() {
                       </span>
                                     </td>
                                     <td className="px-4 py-2">{row.symbol}</td>
-                                    <td className="px-4 py-2">{row.avgPrice}</td>
-                                    <td className="px-4 py-2">{row.holding}</td>
-                                    <td className="px-4 py-2">{row.totalValue}</td>
+                                    <td className="px-4 py-2">{row.avgPrice.toLocaleString()}원</td>
+                                    <td className="px-4 py-2">{row.holding}주</td>
+                                    <td className="px-4 py-2">{row.totalValue.toLocaleString()}원</td>
                                 </tr>
                             ))}
                             </tbody>
