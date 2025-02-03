@@ -165,6 +165,7 @@ function Portfolio() {
                 setTableData(transformedData);
             }
         } catch (error) {
+            alert('작업을 처리하는 데 문제가 발생했습니다:', error);
             console.error('Failed to fetch stocks:', error);
         }
     };
@@ -236,6 +237,7 @@ function Portfolio() {
                 setTableData(updatedTableData);
             }
         } catch (error) {
+            alert('작업을 처리하는 데 문제가 발생했습니다:', error);
             console.error('Failed to fetch stocks:', error);
         } finally {
             setIsLoading(false);
@@ -342,7 +344,7 @@ function Portfolio() {
                                     {chartData.map((item, index) => (
                                         <div key={index} className="mb-6">
                                             <div className="flex justify-between items-center mb-1">
-                                                <span className="text-gray-600">{item.name}</span>
+                                                <span className="text-gray-600 truncate">{item.name}</span>
                                             </div>
                                             <div className="flex justify-between text-xl font-bold">
                                                 {item.value.toLocaleString()}원
@@ -412,14 +414,14 @@ function Portfolio() {
                                         <tr key={index} className="border-b cursor-pointer"
                                             onClick={() => openUpdateDialog(row.id, row.ticker, row.avgPrice, row.quantity)}>
                                             <td className="px-4 py-2">
-                                        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
+                                        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm truncate">
                                           {row.type}
                                         </span>
                                             </td>
-                                            <td className="px-4 py-2">{row.ticker}</td>
-                                            <td className="px-4 py-2">{row.avgPrice.toLocaleString()}원</td>
-                                            <td className="px-4 py-2">{row.quantity}주</td>
-                                            <td className="px-4 py-2">{row.totalValue.toLocaleString()}원</td>
+                                            <td className="px-4 py-2 truncate">{row.ticker}</td>
+                                            <td className="px-4 py-2 truncate">{row.avgPrice.toLocaleString()}원</td>
+                                            <td className="px-4 py-2 truncate">{row.quantity}주</td>
+                                            <td className="px-4 py-2 truncate">{row.totalValue.toLocaleString()}원</td>
                                         </tr>
                                     ))
                                 ) : (
