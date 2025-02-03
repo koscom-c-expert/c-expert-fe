@@ -141,6 +141,11 @@ function Portfolio() {
     const totalValueSum = tableData.reduce((sum, item) => sum + item.totalValue, 0);
     const [chartData, setChartData] = useState([]);
 
+    // 더보기
+    const [showAll, setShowAll] = useState(false);
+    const displayData = showAll ? chartData : chartData.slice(0, 3);
+    const hasMoreItems = chartData.length > 3;
+
     // Dialog
     const [stockId, setStockId] = useState();
     const [ticker, setTicker] = useState("");
@@ -149,7 +154,7 @@ function Portfolio() {
 
     const fetchStocks = async () => {
         try {
-            const response = await fetch('/api/v1/stocks?userId='+userId);
+            const response = await fetch('/api/v1/stocks?userId=' + userId);
             const result = await response.json();
 
             if (result.status === 'success' && result.data) {
@@ -167,6 +172,21 @@ function Portfolio() {
         } catch (error) {
             alert('작업을 처리하는 데 문제가 발생했습니다.');
             console.error('Failed to fetch stocks:', error);
+
+            setTableData(
+                [
+                    {type: "트럼프 수혜주1", ticker: "APP1", avgPrice: 12345, quantity: 67, totalValue: 1234567},
+                    {type: "트럼프 악재주2", ticker: "APP2", avgPrice: 11200, quantity: 50, totalValue: 560000},
+                    {type: "나머지3", ticker: "APP3", avgPrice: 9870, quantity: 120, totalValue: 1184400},
+                    {type: "트럼프 수혜주4", ticker: "APP4", avgPrice: 15230, quantity: 30, totalValue: 456900},
+                    {type: "트럼프 악재주5", ticker: "APP5", avgPrice: 8400, quantity: 90, totalValue: 756000},
+                    {type: "나머지", ticker: "APP6", avgPrice: 22100, quantity: 15, totalValue: 331500},
+                    {type: "트럼프 수혜주", ticker: "APP7", avgPrice: 14500, quantity: 42, totalValue: 609000},
+                    {type: "트럼프 악재주", ticker: "APP8", avgPrice: 10700, quantity: 88, totalValue: 941600},
+                    {type: "나머지", ticker: "APP9", avgPrice: 7990, quantity: 70, totalValue: 559300},
+                    {type: "트럼프 수혜주", ticker: "APP10", avgPrice: 19500, quantity: 25, totalValue: 487500}
+                ]
+            );
         }
     };
 
@@ -359,7 +379,7 @@ function Portfolio() {
                                     </div>
                                 </div>
                                 <div className="lg:w-1/2 pl-6">
-                                    {chartData.map((item, index) => (
+                                    {displayData.map((item, index) => (
                                         <div key={index} className="mb-6">
                                             <div className="flex justify-between items-center mb-1">
                                                 <span className="text-gray-600 truncate">{item.name}</span>
@@ -373,6 +393,15 @@ function Portfolio() {
                                             </div>
                                         </div>
                                     ))}
+
+                                    {hasMoreItems && (
+                                        <button
+                                            onClick={() => setShowAll(!showAll)}
+                                            className="w-full py-2 text-gray-500 transition-colors"
+                                        >
+                                            {showAll ? '접기' : `더보기 (${chartData.length - 3})`}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
