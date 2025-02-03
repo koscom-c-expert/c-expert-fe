@@ -92,10 +92,34 @@ const updateStock = async (userId, stockId, ticker, averagePurchasePrice, quanti
             data
         };
     } catch (error) {
-        console.error('Error adding stock:', error);
+        console.error('Error updating stock:', error);
         return {
             success: false,
             error: error instanceof Error ? error.message : '주식 수정 중 오류가 발생했습니다.'
+        };
+    }
+};
+
+const deleteStock = async (stockId) => {
+    try {
+        const response = await fetch('/api/v1/stocks/' + stockId, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return {
+            success: true,
+            data
+        };
+    } catch (error) {
+        console.error('Error deleting stock:', error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : '주식 삭제 중 오류가 발생했습니다.'
         };
     }
 };
@@ -140,26 +164,41 @@ function Portfolio() {
         }
     };
 
+    // Dialog
     const [stockId, setStockId] = useState();
     const [ticker, setTicker] = useState("");
     const [avgPrice, setAvgPrice] = useState();
     const [quantity, setQuantity] = useState();
 
     const onClickAddOrModify = async () => {
-        let result;
         if (isUpdateDialog) {
-            result = await updateStock(userId, stockId, ticker, avgPrice, quantity);
-            alert('주식이 성공적으로 수정되었습니다.');
+            const result = await updateStock(userId, stockId, ticker, avgPrice, quantity);
+            if (result.success) {
+                alert('주식을 성공적으로 수정하였습니다.');
+                setIsDialogOpen(false);
+                fetchStocks()
+            } else {
+                alert('작업을 처리하는 데 문제가 발생했습니다:', result.error);
+            }
         } else {
-            result = await addStock(userId, ticker, avgPrice, quantity);
-            alert('주식이 성공적으로 추가되었습니다.');
+            const result = await addStock(userId, ticker, avgPrice, quantity);
+            if (result.success) {
+                alert('주식을 성공적으로 추가하였습니다.');
+                setIsDialogOpen(false);
+                fetchStocks()
+            } else {
+                alert('작업을 처리하는 데 문제가 발생했습니다:', result.error);
+            }
         }
-
+    }
+    const onClickDelete = async () => {
+        const result = await deleteStock(stockId);
         if (result.success) {
+            alert('주식을 성공적으로 삭제하였습니다.');
             setIsDialogOpen(false);
             fetchStocks()
         } else {
-            alert('주식 추가 실패:', result.error);
+            alert('작업을 처리하는 데 문제가 발생했습니다:', result.error);
         }
     }
 
@@ -397,7 +436,7 @@ function Portfolio() {
                             <div className="flex justify-between items-center">
                                 {
                                     isUpdateDialog ? (
-                                        <p className="px-4 py-2 text-gray-400 cursor-pointer">
+                                        <p className="px-4 py-2 text-gray-400 cursor-pointer" onClick={() => onClickDelete()}>
                                             제거하기
                                         </p>
                                     ) : (<p></p>)

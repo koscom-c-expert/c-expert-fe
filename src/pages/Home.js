@@ -16,7 +16,7 @@ function Home() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-black">
             {/* Header */}
             <header className="bg-white">
                 <div className="container mx-auto px-4">
