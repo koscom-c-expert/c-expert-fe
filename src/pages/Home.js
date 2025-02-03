@@ -1,9 +1,7 @@
 import {useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 import Logo from '../assets/logo-on-white.png';
-import DownArrow from '../assets/down_arrow.svg';
-import {PieChart, Pie, Cell} from 'recharts';
-import {User, Plus, X} from 'lucide-react';
+import BlackLogo from '../assets/mock-logo-on-black.png';
 
 function Home() {
     const navigate = useNavigate();
@@ -11,7 +9,7 @@ function Home() {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <header className="bg-white border-b">
+            <header className="bg-white">
                 <div className="container mx-auto px-4">
                     <div className="h-16 flex items-center justify-between">
                         {/* Logo and Navigation */}
@@ -26,14 +24,28 @@ function Home() {
                         </nav>
                         {/* 무료로 시작하기 */}
                         <div className="flex items-center cursor-pointer rounded-3xl bg-black pt-2 pb-2 pl-4 pr-4">
-                            <p className="text-white text-sm font-bold">무료로 시작하기</p>
+                            <p className="text-white text-sm font-bold" onClick={() => navigate("/portfolio")}>무료로 시작하기</p>
                         </div>
                     </div>
                 </div>
             </header>
 
             {/* Main Content */}
-            <main className="container mx-auto px-4 py-8">
+            <main className="flex flex-col items-center bg-black justify-center"
+                  style={{
+                      background: 'linear-gradient(180deg, white 0%, black 40px, black 100%)'
+                  }}>
+                <img src={BlackLogo} className="mt-12 w-[832px]"/>
+                <p className="font-bold text-4xl text-white mt-12">
+                    주식 포트폴리오 관리
+                </p>
+                <div className="bg-white w-1 h-40 mt-4 mb-4"/>
+                <p className="font-bold text-4xl text-white">
+                    누구보다 스마트하게.
+                </p>
+                <div className="flex items-center cursor-pointer rounded-3xl bg-white pt-2 pb-2 pl-4 pr-4 mt-16 mb-16">
+                    <p className="text-black text-sm font-bold" onClick={() => navigate("/portfolio")}>무료로 시작하기</p>
+                </div>
             </main>
         </div>
     );
