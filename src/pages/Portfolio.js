@@ -133,14 +133,17 @@ function Portfolio() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isUpdateDialog, setIsUpdateDialog] = useState(false);
 
+    const [keyword, setKeyword] = useState("");
+
     const [tableData, setTableData] = useState([]);
-
-
-    // 전체 tableData의 totalValue 합계를 계산
     const totalValueSum = tableData.reduce((sum, item) => sum + item.totalValue, 0);
-
-    // chartData state (tableData 변경 시 자동 갱신)
     const [chartData, setChartData] = useState([]);
+
+    // Dialog
+    const [stockId, setStockId] = useState();
+    const [ticker, setTicker] = useState("");
+    const [avgPrice, setAvgPrice] = useState();
+    const [quantity, setQuantity] = useState();
 
     const fetchStocks = async () => {
         try {
@@ -164,12 +167,6 @@ function Portfolio() {
         }
     };
 
-    // Dialog
-    const [stockId, setStockId] = useState();
-    const [ticker, setTicker] = useState("");
-    const [avgPrice, setAvgPrice] = useState();
-    const [quantity, setQuantity] = useState();
-
     const onClickAddOrModify = async () => {
         if (isUpdateDialog) {
             const result = await updateStock(userId, stockId, ticker, avgPrice, quantity);
@@ -191,6 +188,7 @@ function Portfolio() {
             }
         }
     }
+
     const onClickDelete = async () => {
         const result = await deleteStock(stockId);
         if (result.success) {
@@ -201,6 +199,43 @@ function Portfolio() {
             alert('작업을 처리하는 데 문제가 발생했습니다:', result.error);
         }
     }
+
+    const classify = async () => {
+        try {
+            const response = await fetch('/api/v1/classification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "keyword": keyword,
+                    "userId": userId
+                }),
+            });
+            const result = await response.json();
+            if (result.status === 'success' && result.data) {
+                // 새로운 tableData 생성
+                const updatedTableData = tableData.map(item => {
+                    // response.data 배열에서 현재 item과 ticker가 일치하는 항목 찾기
+                    const matchingStock = result.data.find(stock => stock.ticker === item.ticker);
+
+                    // 매칭되는 항목이 있으면 type 업데이트, 없으면 기존 데이터 유지
+                    if (matchingStock) {
+                        return {
+                            ...item,
+                            type: matchingStock.newCategory
+                        };
+                    }
+                    return item;
+                });
+
+                // 상태 업데이트
+                setTableData(updatedTableData);
+            }
+        } catch (error) {
+            console.error('Failed to fetch stocks:', error);
+        }
+    };
 
     const openCreateDialog = () => {
         setTicker("");
@@ -324,9 +359,12 @@ function Portfolio() {
                                 type="text"
                                 placeholder="예시) 금리 인하"
                                 className="flex-grow px-4 py-2 border rounded-lg"
+                                value={keyword}
+                                onChange={(e) => setKeyword(e.target.value)}
                             />
                             <button
                                 className="text-white font-bold w-36 ml-2 px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90"
+                                onClick={() => classify()}
                                 style={{
                                     background: 'linear-gradient(-45deg, #3498DB 0%, #7474C7 50%, #A72B75 100%)'
                                 }}>
