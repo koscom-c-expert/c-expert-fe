@@ -69,7 +69,10 @@ const addStock = async (userId, ticker, averagePurchasePrice, quantity) => {
 
 function Portfolio() {
     const navigate = useNavigate();
+
     const [username, setUsername] = useState("Guest");
+    const [userId, setUserId] = useState("user1");
+
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isUpdateDialog, setIsUpdateDialog] = useState(false);
 
@@ -104,7 +107,6 @@ function Portfolio() {
         }
     };
 
-    const [userId, setUserId] = useState("user2");
     const [ticker, setTicker] = useState("");
     const [avgPrice, setAvgPrice] = useState();
     const [quantity, setQuantity] = useState();
@@ -185,12 +187,12 @@ function Portfolio() {
                 <h1 className="text-3xl font-bold mb-8 text-left">내 포트폴리오.</h1>
 
                 {/* Portfolio Overview and Classification */}
-                <div className="grid xl:grid-cols-2 gap-8 mb-8 items-start">
+                <div className="grid lg:grid-cols-2 gap-8 mb-8 items-start">
                     {/* Portfolio Overview */}
                     <div className="bg-white p-6 rounded-lg shadow">
                         <h2 className="text-xl font-medium mb-6">포트폴리오 개요</h2>
-                        <div className="flex">
-                            <div className="w-1/2 relative">
+                        <div className="flex flex-col lg:flex-row">
+                            <div className="lg:w-1/2 relative">
                                 <div className="w-64 h-64 mx-auto">
                                     <PieChart width={256} height={256}>
                                         <Pie
@@ -214,7 +216,7 @@ function Portfolio() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="w-1/2 pl-6">
+                            <div className="lg:w-1/2 pl-6">
                                 {chartData.map((item, index) => (
                                     <div key={index} className="mb-6">
                                         <div className="flex justify-between items-center mb-1">
@@ -266,7 +268,7 @@ function Portfolio() {
                     </div>
 
                     {/* Table */}
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto whitespace-nowrap">
                         <table className="w-full">
                             <thead>
                             <tr className="bg-gray-50">
