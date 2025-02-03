@@ -1,5 +1,5 @@
 import {useNavigate, useParams} from "react-router-dom";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import Logo from '../assets/logo-on-white.png';
 import DownArrow from '../assets/down_arrow.svg';
 import {PieChart, Pie, Cell, Tooltip} from 'recharts';
@@ -175,7 +175,8 @@ function Portfolio() {
             alert('작업을 처리하는 데 문제가 발생했습니다.');
             console.error('Failed to fetch stocks:', error);
 
-            setTableData(
+            // mock data
+            /*setTableData(
                 [
                     {type: "트럼프 수혜주1", ticker: "APP1", avgPrice: 12345, quantity: 67, totalValue: 1234567},
                     {type: "트럼프 악재주2", ticker: "APP2", avgPrice: 11200, quantity: 50, totalValue: 560000},
@@ -188,7 +189,7 @@ function Portfolio() {
                     {type: "나머지", ticker: "APP9", avgPrice: 7990, quantity: 70, totalValue: 559300},
                     {type: "트럼프 수혜주", ticker: "APP10", avgPrice: 19500, quantity: 25, totalValue: 487500}
                 ]
-            );
+            );*/
         }
     };
 
@@ -299,6 +300,42 @@ function Portfolio() {
             <p className="text-gray-600">
                 분류 진행 중...{emojis[currentEmoji]}
             </p>
+        );
+    };
+
+    const PopupNotification = () => {
+        const [isVisible, setIsVisible] = useState(false);
+
+        useEffect(() => {
+            const timer = setTimeout(() => {
+                setIsVisible(true);
+            }, 5000);
+
+            return () => clearTimeout(timer);
+        }, []);
+
+        if (!isVisible) return null;
+
+        return (
+            <div className="fixed bottom-4 right-4 max-w-sm bg-white rounded-lg shadow-lg p-4 transition-all duration-300 transform translate-y-0 opacity-100 cursor-pointer"
+                onClick={() => {classify("딥시크 수혜주")}}>
+                <div className="flex justify-between items-start">
+                    <div className="pr-8">
+                        <p className="font-bold mb-1">
+                            🔥 <span className="text-gray-600">이번 주 인기 키워드:</span> '딥시크 수혜주'
+                        </p>
+                        <p className="text-sm text-gray-600">
+                            이 카드를 클릭하면 <span className="font-bold">내 포트폴리오 맞춤 분석</span>이 시작됩니다! 🚀
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => setIsVisible(false)}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+            </div>
         );
     };
 
@@ -686,6 +723,8 @@ function Portfolio() {
                     </div>
                 </div>
             )}
+
+            <PopupNotification />
         </div>
     );
 }
