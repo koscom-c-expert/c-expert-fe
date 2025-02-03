@@ -34,23 +34,45 @@ const getChartData = (data) => {
     }));
 };
 
+const addStock = async (userId, ticker, averagePurchasePrice, quantity) => {
+    try {
+        const response = await fetch('/api/v1/stocks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId,
+                ticker,
+                averagePurchasePrice,
+                quantity
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return {
+            success: true,
+            data
+        };
+    } catch (error) {
+        console.error('Error adding stock:', error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : '주식 추가 중 오류가 발생했습니다.'
+        };
+    }
+};
+
 function Portfolio() {
     const navigate = useNavigate();
     const [username, setUsername] = useState("Guest");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-    const [tableData, setTableData] = useState([
-        /*{type: "트럼프 수혜주", symbol: "APP1", avgPrice: 12345, holding: 67, totalValue: 1234567},
-        {type: "트럼프 악재주", symbol: "APP2", avgPrice: 11200, holding: 50, totalValue: 560000},
-        {type: "나머지", symbol: "APP3", avgPrice: 9870, holding: 120, totalValue: 1184400},
-        {type: "트럼프 수혜주", symbol: "APP4", avgPrice: 15230, holding: 30, totalValue: 456900},
-        {type: "트럼프 악재주", symbol: "APP5", avgPrice: 8400, holding: 90, totalValue: 756000},
-        {type: "나머지", symbol: "APP6", avgPrice: 22100, holding: 15, totalValue: 331500},
-        {type: "트럼프 수혜주", symbol: "APP7", avgPrice: 14500, holding: 42, totalValue: 609000},
-        {type: "트럼프 악재주", symbol: "APP8", avgPrice: 10700, holding: 88, totalValue: 941600},
-        {type: "나머지", symbol: "APP9", avgPrice: 7990, holding: 70, totalValue: 559300},
-        {type: "트럼프 수혜주", symbol: "APP10", avgPrice: 19500, holding: 25, totalValue: 487500}*/
-    ]);
+    const [tableData, setTableData] = useState([]);
 
 
     // 전체 tableData의 totalValue 합계를 계산
@@ -59,28 +81,45 @@ function Portfolio() {
     // chartData state (tableData 변경 시 자동 갱신)
     const [chartData, setChartData] = useState([]);
 
-    useEffect(() => {
-        const fetchStocks = async () => {
-            try {
-                const response = await fetch('/api/v1/stocks?userId=testUser');
-                const result = await response.json();
+    const fetchStocks = async () => {
+        try {
+            const response = await fetch('/api/v1/stocks?userId=testUser');
+            const result = await response.json();
+            console.log(result);
 
-                if (result.status === 'success' && result.data) {
-                    const transformedData = result.data.map(item => ({
-                        type: "내 주식", // Default classification
-                        symbol: item.ticker,
-                        avgPrice: item.averagePurchasePrice,
-                        holding: item.quantity,
-                        totalValue: item.averagePurchasePrice * item.quantity
-                    }));
+            if (result.status === 'success' && result.data) {
+                const transformedData = result.data.map(item => ({
+                    type: "내 주식", // Default classification
+                    ticker: item.ticker,
+                    avgPrice: item.averagePurchasePrice,
+                    quantity: item.quantity,
+                    totalValue: item.averagePurchasePrice * item.quantity
+                }));
 
-                    setTableData(transformedData);
-                }
-            } catch (error) {
-                console.error('Failed to fetch stocks:', error);
+                setTableData(transformedData);
             }
-        };
+        } catch (error) {
+            console.error('Failed to fetch stocks:', error);
+        }
+    };
 
+    const [userId, setUserId] = useState("testUser");
+    const [ticker, setTicker] = useState("");
+    const [avgPrice, setAvgPrice] = useState();
+    const [quantity, setQuantity] = useState();
+
+    const addNewStock = async () => {
+        const result = await addStock(userId, ticker, avgPrice, quantity);
+        if (result.success) {
+            alert('주식이 성공적으로 추가되었습니다.');
+            setIsDialogOpen(false);
+            fetchStocks()
+        } else {
+            alert.error('주식 추가 실패:', result.error);
+        }
+    }
+
+    useEffect(() => {
         fetchStocks();
     }, []);
 
@@ -226,9 +265,9 @@ function Portfolio() {
                         {row.type}
                       </span>
                                     </td>
-                                    <td className="px-4 py-2">{row.symbol}</td>
+                                    <td className="px-4 py-2">{row.ticker}</td>
                                     <td className="px-4 py-2">{row.avgPrice.toLocaleString()}원</td>
-                                    <td className="px-4 py-2">{row.holding}주</td>
+                                    <td className="px-4 py-2">{row.quantity}주</td>
                                     <td className="px-4 py-2">{row.totalValue.toLocaleString()}원</td>
                                 </tr>
                             ))}
@@ -262,6 +301,8 @@ function Portfolio() {
                                     type="text"
                                     placeholder="APPL"
                                     className="w-full px-4 py-2 border rounded-lg"
+                                    value={ticker}
+                                    onChange={(e) => setTicker(e.target.value)}
                                 />
                             </div>
 
@@ -272,6 +313,8 @@ function Portfolio() {
                                         type="text"
                                         placeholder="1,234,567"
                                         className="w-full px-4 py-2 border rounded-lg"
+                                        value={avgPrice}
+                                        onChange={(e) => setAvgPrice(Number(e.target.value))}
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -280,6 +323,8 @@ function Portfolio() {
                                         type="text"
                                         placeholder="12"
                                         className="w-full px-4 py-2 border rounded-lg"
+                                        value={quantity}
+                                        onChange={(e) => setQuantity(Number(e.target.value))}
                                     />
                                 </div>
                             </div>
@@ -296,6 +341,7 @@ function Portfolio() {
                                     </button>
                                     <button
                                         className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+                                        onClick={() => addNewStock()}
                                     >
                                         확인
                                     </button>
