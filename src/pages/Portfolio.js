@@ -97,14 +97,14 @@ function Portfolio() {
                 <div className="container mx-auto px-4">
                     <div className="h-16 flex items-center justify-between">
                         {/* Logo and Navigation */}
-                        <img src={Logo} alt="Logo" className="h-8"/>
+                        <img src={Logo} alt="Logo" className="h-8 cursor-pointer" onClick={() => navigate("/")}/>
                         <nav className="flex space-x-16">
-                            <a href="#" className="flex items-center text-gray-600 hover:text-gray-900">
+                            <p onClick={() => navigate("/")} className="flex items-center text-gray-600 hover:text-gray-900 cursor-pointer">
                                 홈
-                            </a>
-                            <a href="#" className="flex items-center text-gray-900 font-medium">
+                            </p>
+                            <p onClick={() => navigate("/portfolio")} className="flex items-center text-gray-900 font-medium cursor-pointer">
                                 내 포트폴리오
-                            </a>
+                            </p>
                         </nav>
                         {/* User Profile */}
                         <div className="flex flex-row justify-between items-center space-x-2 w-32 cursor-pointer">
