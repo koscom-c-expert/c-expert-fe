@@ -128,6 +128,8 @@ const deleteStock = async (stockId) => {
 function Portfolio() {
     const navigate = useNavigate();
 
+    const popularKeyword = "딥시크 수혜주";
+
     // 사용자 아이디 입력
     const [userId, setUserId] = useState("");
     const [isUserDialogOpen, setIsUserDialogOpen] = useState(true);
@@ -707,13 +709,13 @@ function Portfolio() {
                 <div
                     className="fixed bottom-4 right-4 max-w-sm bg-white rounded-lg shadow-lg p-4 transition-all duration-300 transform translate-y-0 opacity-100 cursor-pointer"
                     onClick={() => {
-                        classify("딥시크 수혜주");
+                        classify(popularKeyword);
                         setIsPopupVisible(false);
                     }}>
                     <div className="flex justify-between items-start">
                         <div className="pr-8">
                             <p className="font-bold mb-1">
-                                🔥 <span className="text-gray-600">이번 주 인기 키워드:</span> '딥시크 수혜주'
+                                🔥 <span className="text-gray-600">이번 주 인기 키워드:</span> '{popularKeyword}'
                             </p>
                             <p className="text-sm text-gray-600">
                                 이 카드를 클릭하면 <span className="font-bold">내 포트폴리오 맞춤 분석</span>이 시작됩니다! 🚀
