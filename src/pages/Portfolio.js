@@ -1,11 +1,13 @@
 import {useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
 import Logo from '../assets/logo-on-white.png';
+import DownArrow from '../assets/down_arrow.svg';
 import {PieChart, Pie, Cell} from 'recharts';
 import {Home, User, Plus, X} from 'lucide-react';
 
 function Portfolio() {
     const navigate = useNavigate();
+    const [username, setUsername] = useState("Guest");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const data = [
         {name: "트럼프 수혜주", value: 2147783647, percentage: 58, color: "#4A90E2"},
@@ -36,8 +38,18 @@ function Portfolio() {
                             </a>
                         </nav>
                         {/* User Profile */}
-                        <div className="flex items-center space-x-2">
-                            <span>사용자</span>
+                        <div className="flex flex-row justify-between items-center space-x-2 w-32 cursor-pointer">
+                            <div className="flex flex-row items-center">
+                                <div
+                                    className="w-9 h-9 rounded-3xl content-center"
+                                    style={{
+                                        background: 'linear-gradient(90deg, #3498DB 0%, #7474C7 100%)'
+                                    }}>
+                                    <p className="font-bold text-white text-xl">{username.charAt(0)}</p>
+                                </div>
+                                <span className="truncate ml-2">{username}</span>
+                            </div>
+                            <img className="size-4" src={DownArrow}/>
                         </div>
                     </div>
                 </div>
