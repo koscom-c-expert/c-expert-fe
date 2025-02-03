@@ -369,6 +369,11 @@ function Portfolio() {
                                     className="flex-grow px-4 py-2 border rounded-lg"
                                     value={keyword}
                                     onChange={(e) => setKeyword(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            classify();
+                                        }
+                                    }}
                                 />
                                 <button
                                     className="text-white font-bold w-36 ml-2 px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90 whitespace-nowrap"
