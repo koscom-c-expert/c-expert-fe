@@ -314,8 +314,8 @@ function Portfolio() {
                         <div className="bg-white p-6 rounded-lg shadow">
                             <h2 className="text-xl font-medium mb-6">포트폴리오 개요</h2>
                             <div className="flex flex-col lg:flex-row">
-                                <div className="lg:w-1/2 relative">
-                                    <div className="w-64 h-64 mx-auto">
+                                <div className="lg:w-1/2">
+                                    <div className="relative w-64 h-64 mx-auto">
                                         <PieChart width={256} height={256}>
                                             <Pie
                                                 data={chartData}
@@ -332,7 +332,7 @@ function Portfolio() {
                                             </Pie>
                                         </PieChart>
                                         <div
-                                            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                                            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-32">
                                             <div className="text-sm text-gray-600">총 자산</div>
                                             <div className="text-xl font-bold">{totalValueSum.toLocaleString()}원</div>
                                         </div>
