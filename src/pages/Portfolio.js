@@ -7,6 +7,12 @@ import {User, Plus, X} from 'lucide-react';
 
 // tableData를 기반으로 chartData를 계산하는 함수
 const getChartData = (data) => {
+    const generateColor = (index, total) => {
+        // Use HSL to generate colors with good spacing and consistent saturation/lightness
+        const hue = (index * (360 / Math.max(total, 3))) % 360;
+        return `hsl(${hue}, 70%, 45%)`; // 70% saturation, 45% lightness for vibrant but not too bright colors
+    };
+
     // 각 type별 totalValue 합산
     const typeSums = {};
     data.forEach(item => {
@@ -16,21 +22,16 @@ const getChartData = (data) => {
     // type별 합계를 배열로 변환 후 totalValue 기준 내림차순 정렬, 상위 3개 선택
     const sortedTypes = Object.entries(typeSums)
         .map(([type, totalValue]) => ({ type, totalValue }))
-        .sort((a, b) => b.totalValue - a.totalValue)
-        .slice(0, 3);
+        .sort((a, b) => b.totalValue - a.totalValue);
 
-    // 상위 3개 totalValue의 총합 (퍼센트 계산용)
+    const fixedColors = ["#4A90E2", "#8B6BE2", "#B23F9E"];
     const totalSum = sortedTypes.reduce((sum, item) => sum + item.totalValue, 0);
 
-    // 상위 3개 순서에 따른 고정 색상 배열
-    const fixedColors = ["#4A90E2", "#8B6BE2", "#B23F9E"];
-
-    // chartData 생성
     return sortedTypes.map((item, index) => ({
         name: item.type,
         value: item.totalValue,
         percentage: Math.round((item.totalValue / totalSum) * 100),
-        color: fixedColors[index]
+        color: index < 3 ? fixedColors[index] : generateColor(index - 3, Math.max(sortedTypes.length - 3, 1))
     }));
 };
 
@@ -368,7 +369,7 @@ function Portfolio() {
                                     onChange={(e) => setKeyword(e.target.value)}
                                 />
                                 <button
-                                    className="text-white font-bold w-36 ml-2 px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90"
+                                    className="text-white font-bold w-36 ml-2 px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90 whitespace-nowrap"
                                     onClick={() => classify()}
                                     style={{
                                         background: 'linear-gradient(-45deg, #3498DB 0%, #7474C7 50%, #A72B75 100%)'
