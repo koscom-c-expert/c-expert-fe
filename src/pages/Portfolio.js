@@ -433,7 +433,7 @@ function Portfolio() {
                     <div className="h-16 flex items-center justify-between">
                         {/* Logo and Navigation */}
                         <img src={Logo} alt="Logo" className="h-8 cursor-pointer" onClick={() => navigate("/")}/>
-                        <nav className="flex space-x-16 invisible lg:visible">
+                        <nav className="flex space-x-16 invisible xl:visible">
                             <p onClick={() => navigate("/")} className="flex items-center text-gray-600 hover:text-gray-900 cursor-pointer">
                                 홈
                             </p>
@@ -474,12 +474,12 @@ function Portfolio() {
 
                 {/* Portfolio Overview and Classification */}
                 {chartData.length >= 1 &&
-                    (<div className="grid lg:grid-cols-2 gap-8 mb-8 items-start">
+                    (<div className="grid xl:grid-cols-2 gap-8 mb-8 items-start">
                     {/* Portfolio Overview */}
                         <div className="bg-white p-6 rounded-lg shadow">
                             <h2 className="text-xl font-medium mb-6">포트폴리오 개요</h2>
-                            <div className="flex flex-col lg:flex-row">
-                                <div className="lg:w-1/2">
+                            <div className="flex flex-col xl:flex-row">
+                                <div className="xl:w-1/2">
                                     <div className="relative w-64 h-64 mx-auto">
                                         <div
                                             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-32">
@@ -521,7 +521,7 @@ function Portfolio() {
                                         </PieChart>
                                     </div>
                                 </div>
-                                <div className="lg:w-1/2 lg:pl-6 flex flex-col items-center">
+                                <div className="xl:w-1/2 xl:pl-6 flex flex-col items-center">
                                     {displayData.map((item, index) => (
                                         <div key={index} className="mb-6 w-full">
                                             <div className="flex items-center mb-1">
