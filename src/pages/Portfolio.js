@@ -128,7 +128,7 @@ const deleteStock = async (stockId) => {
 function Portfolio() {
     const navigate = useNavigate();
 
-    const popularKeyword = "딥시크 수혜주";
+    const popularKeyword = "테마";
 
     // 사용자 아이디 입력
     const [userId, setUserId] = useState("");
@@ -253,7 +253,8 @@ function Portfolio() {
                     if (matchingStock) {
                         return {
                             ...item,
-                            type: matchingStock.newCategory
+                            type: matchingStock.newCategory,
+                            reason: matchingStock.reason
                         };
                     }
                     return item;
@@ -287,6 +288,10 @@ function Portfolio() {
         setIsStockDialogOpen(true);
     }
 
+    const isThereReasonOnTableData = () => {
+        return tableData.length >= 1 && tableData[0].reason !== undefined
+    }
+
     const LoadingMessage = () => {
         const [currentEmoji, setCurrentEmoji] = useState(0);
         const emojis = ['🔥', '🍎', '🎈', '💖'];
@@ -309,7 +314,7 @@ function Portfolio() {
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsPopupVisible(true);
-        }, 5000);
+        }, 10000);
         return () => clearTimeout(timer);
     }, []);
 
@@ -520,6 +525,9 @@ function Portfolio() {
                                 <th className="px-4 py-2">평균매입가</th>
                                 <th className="px-4 py-2">보유수량</th>
                                 <th className="px-4 py-2">평가금액</th>
+                                {isThereReasonOnTableData() && (
+                                    <th className="px-4 py-2">판단근거</th>
+                                )}
                             </tr>
                             </thead>
                             <tbody>
@@ -529,14 +537,17 @@ function Portfolio() {
                                         <tr key={index} className="border-b cursor-pointer"
                                             onClick={() => openUpdateDialog(row.id, row.ticker, row.avgPrice, row.quantity)}>
                                             <td className="px-4 py-2">
-                                        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm truncate">
-                                          {row.type}
-                                        </span>
+                                                <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm truncate">
+                                                  {row.type}
+                                                </span>
                                             </td>
                                             <td className="px-4 py-2 truncate">{row.ticker}</td>
                                             <td className="px-4 py-2 truncate">{row.avgPrice.toLocaleString()}원</td>
                                             <td className="px-4 py-2 truncate">{row.quantity}주</td>
                                             <td className="px-4 py-2 truncate">{row.totalValue.toLocaleString()}원</td>
+                                            {isThereReasonOnTableData() && (
+                                                <td className="px-4 py-2 truncate">{row.reason}</td>
+                                            )}
                                         </tr>
                                     ))
                                 ) : (
@@ -690,7 +701,7 @@ function Portfolio() {
 
             {isLoading && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-8 rounded-lg flex flex-col items-center space-y-4">
+                    <div className="bg-white pt-8 pl-8 pr-8 pb-5 rounded-lg flex flex-col items-center space-y-4">
                         <div className="w-32 h-1 bg-gray-200 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-gradient"
