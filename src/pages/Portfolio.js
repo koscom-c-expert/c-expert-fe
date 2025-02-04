@@ -129,6 +129,14 @@ function Portfolio() {
     const navigate = useNavigate();
 
     const popularKeyword = "테마";
+    const rebalancingCards = [
+        {name: "", color: "#FFFFFF"},
+        {name: "대폭 축소", color: "#D32F2F"},
+        {name: "축소", color: "#F57C00"},
+        {name: "유지", color: "#1976D2"},
+        {name: "확대", color: "#388E3C"},
+        {name: "대폭 확대", color: "#00796B"}
+    ];
 
     // 사용자 아이디 입력
     const [userId, setUserId] = useState("");
@@ -288,6 +296,45 @@ function Portfolio() {
         setIsStockDialogOpen(true);
     }
 
+    const rebalance = async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetch('/api/v1/rebalance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(
+                    chartData.map(item => ({
+                        category: item.name,
+                        percentage: item.percentage
+                    }))
+                ),
+            });
+
+            const result = await response.json();
+            if (result.status === 'success' && result.data) {
+                const levelMapping = {};
+                result.data.forEach((item) => {
+                    levelMapping[item.category] = item.level;
+                });
+
+                // Update chartData with levels from the API response
+                const updatedChartData = chartData.map(item => ({
+                    ...item,
+                    level: levelMapping[item.name] || 0  // Default to 0 if no mapping found
+                }));
+
+                setChartData(updatedChartData);
+            }
+        } catch (error) {
+            alert('작업을 처리하는 데 문제가 발생했습니다.');
+            console.error('Error adding stock:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const isThereReasonOnTableData = () => {
         return tableData.length >= 1 && tableData[0].reason !== undefined
     }
@@ -305,8 +352,8 @@ function Portfolio() {
         }, []);
 
         return (
-            <p className="text-gray-600">
-                분류 진행 중...{emojis[currentEmoji]}
+            <p className="text-gray-600 text-sm">
+                AI 작업 진행 중...{emojis[currentEmoji]}
             </p>
         );
     };
@@ -374,7 +421,7 @@ function Portfolio() {
             {/* Main Content */}
             <main className="container mx-auto px-4 py-8">
                 {/* Title */}
-                <h1 className="text-3xl font-bold mb-8 text-left">내 포트폴리오.</h1>
+                <h1 className="text-3xl font-bold mb-8 text-left">내 포트폴리오</h1>
 
                 {/* Portfolio Overview and Classification */}
                 {chartData.length >= 1 &&
@@ -425,11 +472,16 @@ function Portfolio() {
                                         </PieChart>
                                     </div>
                                 </div>
-                                <div className="lg:w-1/2 pl-6 flex flex-col items-center">
+                                <div className="lg:w-1/2 lg:pl-6 flex flex-col items-center">
                                     {displayData.map((item, index) => (
                                         <div key={index} className="mb-6 w-full">
-                                            <div className="flex justify-between items-center mb-1">
+                                            <div className="flex items-center mb-1">
                                                 <span className="text-gray-600 truncate">{item.name}</span>
+                                                {item.level !== undefined && (
+                                                    <span className="px-1 py-0.5 ml-1.5 rounded-sm text-white text-xs"
+                                                          style={{backgroundColor: rebalancingCards[item.level].color}}>{rebalancingCards[item.level].name}
+                                                    </span>
+                                                )}
                                             </div>
                                             <div className="flex justify-between text-xl font-bold">
                                                 {item.value.toLocaleString()}원
@@ -442,14 +494,23 @@ function Portfolio() {
                                     ))}
 
                                     {hasMoreItems && (
-                                        <div className="flex flex-row items-center space-x-1.5 cursor-pointer"
+                                        <div className={`flex flex-row justify-center w-full items-center mb-4 -mt-14 pt-14 cursor-pointer ${showAll ? '' : 'bg-gradient-to-t from-white via-white to-transparent'}`}
                                              onClick={() => setShowAll(!showAll)}>
-                                            <p className="text-gray-500">{showAll ? '접기' : `더보기`}</p>
                                             <img
                                                 src={DownArrow}
                                                 className={`size-4 transition-transform duration-200 ${showAll ? 'rotate-180' : ''}`}
                                             />
                                         </div>
+                                    )}
+                                    {chartData.length >= 2 && (
+                                        <button
+                                            className="text-white font-bold w-full px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90 whitespace-nowrap"
+                                            onClick={() => rebalance()}
+                                            style={{
+                                                background: 'linear-gradient(-45deg, #3498DB 0%, #7474C7 50%, #A72B75 100%)'
+                                            }}>
+                                            ✨ AI 추천 리밸런싱
+                                        </button>
                                     )}
                                 </div>
                             </div>
@@ -701,7 +762,7 @@ function Portfolio() {
 
             {isLoading && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white pt-8 pl-8 pr-8 pb-5 rounded-lg flex flex-col items-center space-y-4">
+                    <div className="bg-white pt-8 pl-8 pr-8 pb-5 rounded-lg flex flex-col items-center space-y-2">
                         <div className="w-32 h-1 bg-gray-200 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-gradient"
