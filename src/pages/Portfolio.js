@@ -838,7 +838,10 @@ function Portfolio() {
                                 </p>
                             </div>
                             <button
-                                onClick={() => setIsNewsPopupVisible(false)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsNewsPopupVisible(false);
+                                }}
                                 className="text-gray-400 hover:text-gray-600 transition-colors"
                             >
                                 <X className="text-red-600 w-4 h-4"/>
