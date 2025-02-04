@@ -5,6 +5,43 @@ import DownArrow from '../assets/down_arrow.svg';
 import {PieChart, Pie, Cell, Tooltip} from 'recharts';
 import {User, Plus, X} from 'lucide-react';
 
+// Add CSS for animations
+const styles = {
+    '@keyframes slideUp': {
+        '0%': {
+            opacity: 0,
+            transform: 'translateY(20px)'
+        },
+        '100%': {
+            opacity: 1,
+            transform: 'translateY(0)'
+        }
+    },
+    '.slide-up-enter': {
+        animation: 'slideUp 0.3s ease-out forwards'
+    }
+};
+
+// Add style tag to document head
+const styleSheet = document.createElement('style');
+styleSheet.textContent = `
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .slide-up-enter {
+    animation: slideUp 0.3s ease-out forwards;
+  }
+`;
+document.head.appendChild(styleSheet);
+
 // tableData를 기반으로 chartData를 계산하는 함수
 const getChartData = (data) => {
     const generateColor = (index, total) => {
@@ -363,15 +400,11 @@ function Portfolio() {
     useEffect(() => {
         const timer1 = setTimeout(() => {
             setIsKeywordPopupVisible(true);
-        }, 10000);
-
-        const timer2 = setTimeout(() => {
             setIsNewsPopupVisible(true);
-        }, 20000);
+        }, 1000);
 
         return () => {
             clearTimeout(timer1);
-            clearTimeout(timer2);
         };
     }, []);
 
@@ -790,7 +823,7 @@ function Portfolio() {
             <div className="fixed flex flex-col items-end bottom-0 right-4 z-40">
                 {isNewsPopupVisible && (
                     <div
-                        className="w-fit max-w-sm mb-4 bg-red-100 rounded-lg shadow-lg p-4 transition-all duration-300 transform translate-y-0 opacity-100 cursor-pointer"
+                        className="w-fit max-w-sm mb-4 bg-red-100 rounded-lg shadow-lg p-4 slide-up-enter cursor-pointer"
                         onClick={() => {
                             classify(newsKeyword);
                             setIsNewsPopupVisible(false);
@@ -816,7 +849,7 @@ function Portfolio() {
 
                 {isKeywordPopupVisible && (
                     <div
-                        className="w-fit max-w-sm mb-4 bg-white rounded-lg shadow-lg p-4 transition-all duration-300 transform translate-y-0 opacity-100 cursor-pointer"
+                        className="w-fit max-w-sm mb-4 bg-white rounded-lg shadow-lg p-4 slide-up-enter cursor-pointer"
                         onClick={() => {
                             classify(popularKeyword);
                             setIsKeywordPopupVisible(false);
