@@ -31,6 +31,11 @@ C-Expert는 대규모 언어 모델(LLM) 을 활용하여 사용자의 포트폴
 > 현재 가장 인기 있는 포트폴리오 분류 키워드를 제공합니다.
 <img width="421" alt="Screenshot 2025-02-04 at 9 50 56 AM" src="https://github.com/user-attachments/assets/4c0be8c2-5770-46f2-b1cb-55fb368dac13" />
 
+### 최신 트랜드 알림
+> 최신 트랜드 및 관련 주식 정보를 제공합니다.
+<img width="342" alt="Screenshot 2025-02-04 at 12 50 02 PM" src="https://github.com/user-attachments/assets/b72f6e86-9cc2-4444-8b97-a5a6dbf1ce54" />
+
+
 ## 기술 스택, 도구
 - React
 - Tailwind CSS
