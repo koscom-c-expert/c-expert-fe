@@ -129,7 +129,7 @@ function Portfolio() {
     const navigate = useNavigate();
 
     const popularKeyword = "테마";
-    const newsKeyword = "딥시크";
+    const newsKeyword = "트럼프 수혜주";
     const rebalancingCards = [
         {name: "", color: "#FFFFFF"},
         {name: "대폭 축소", color: "#D32F2F"},
@@ -555,16 +555,16 @@ function Portfolio() {
                             </div>
                             <div className="mt-2 ms-1 flex flex-row justify-start space-x-1">
                                 <span className="px-3 py-1 rounded-full text-white text-sm bg-gray-400 cursor-pointer"
-                                      onClick={() => classify("금리 인하")}>
-                                    금리 인하
-                                </span>
-                                <span className="px-3 py-1 rounded-full text-white text-sm bg-gray-400 cursor-pointer"
                                       onClick={() => classify("국가별 분류")}>
                                     국가별 분류
                                 </span>
                                 <span className="px-3 py-1 rounded-full text-white text-sm bg-gray-400 cursor-pointer"
                                       onClick={() => classify("섹터")}>
                                     섹터
+                                </span>
+                                <span className="px-3 py-1 rounded-full text-white text-sm bg-gray-400 cursor-pointer"
+                                      onClick={() => classify("기술주")}>
+                                    기술주
                                 </span>
                             </div>
                             <p className="text-left mt-4 text-gray-500 italic">📙 AI 분류 팁 - 디테일하게 질문할수록 더욱 좋은 결과를 얻을 수
@@ -789,14 +789,19 @@ function Portfolio() {
 
             <div className="fixed flex flex-col items-end bottom-0 right-4 z-40">
                 {isNewsPopupVisible && (
-                    <div className="w-fit max-w-sm mb-4 bg-red-100 rounded-lg shadow-lg p-4 transition-all duration-300 transform translate-y-0 opacity-100">
+                    <div
+                        className="w-fit max-w-sm mb-4 bg-red-100 rounded-lg shadow-lg p-4 transition-all duration-300 transform translate-y-0 opacity-100 cursor-pointer"
+                        onClick={() => {
+                            classify(newsKeyword);
+                            setIsNewsPopupVisible(false);
+                        }}>
                         <div className="flex justify-between items-start">
                             <div className="pr-8">
                                 <p className="font-bold mb-1">
                                     🚨 <span className="text-red-600">주목해야 할 최신 트랜드: '{newsKeyword}'</span>
                                 </p>
                                 <p className="text-sm text-red-600">
-                                    관련 종목: 엔비디아, 브로드컴, GRT
+                                    이 카드를 클릭해서 <b>내 포트폴리오가 안전한지 확인</b>해보세요.
                                 </p>
                             </div>
                             <button
