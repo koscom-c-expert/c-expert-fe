@@ -7,12 +7,11 @@
 C-Expert는 대규모 언어 모델(LLM) 을 활용하여 사용자의 포트폴리오를 조건 및 주제별로 재분류하고, 이를 직관적으로 시각화하는 서비스입니다.
 
 ## 서비스 바로가기
-
-<img width="1497" alt="image" src="https://github.com/user-attachments/assets/473c9a7b-74dd-4555-a92b-52b6765c5f0e" />
-
 🚀 [C-Expert 웹사이트](http://121.141.60.109)
 
 ## 주요 기능
+<img width="1497" alt="image" src="https://github.com/user-attachments/assets/473c9a7b-74dd-4555-a92b-52b6765c5f0e" />
+
 ### 보유 종목 관리
 > 현재 보유 중인 종목을 추가, 수정, 삭제할 수 있어요.
 <img width="1272" alt="Screenshot 2025-02-04 at 11 01 07 AM" src="https://github.com/user-attachments/assets/1932ef5b-0f05-44d4-b40c-c3b513963790" />
