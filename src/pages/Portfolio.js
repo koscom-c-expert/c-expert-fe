@@ -319,6 +319,11 @@ function Portfolio() {
     };
 
     const openCreateDialog = () => {
+        if (userId.length === 0) {
+            setIsUserDialogOpen(true);
+            return;
+        }
+
         setTicker("");
         setAvgPrice();
         setQuantity();
@@ -667,7 +672,6 @@ function Portfolio() {
                     </div>
                 </div>
             </main>
-
 
             {/* Custom Modal */}
             {isStockDialogOpen && (
