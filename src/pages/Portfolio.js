@@ -129,6 +129,7 @@ function Portfolio() {
     const navigate = useNavigate();
 
     const popularKeyword = "테마";
+    const newsKeyword = "딥시크";
     const rebalancingCards = [
         {name: "", color: "#FFFFFF"},
         {name: "대폭 축소", color: "#D32F2F"},
@@ -145,7 +146,8 @@ function Portfolio() {
 
     const [isStockDialogOpen, setIsStockDialogOpen] = useState(false);
     const [isUpdateDialog, setIsUpdateDialog] = useState(false);
-    const [isPopupVisible, setIsPopupVisible] = useState(false);
+    const [isKeywordPopupVisible, setIsKeywordPopupVisible] = useState(false);
+    const [isNewsPopupVisible, setIsNewsPopupVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const [keyword, setKeyword] = useState("");
@@ -359,10 +361,18 @@ function Portfolio() {
     };
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsPopupVisible(true);
+        const timer1 = setTimeout(() => {
+            setIsKeywordPopupVisible(true);
         }, 10000);
-        return () => clearTimeout(timer);
+
+        const timer2 = setTimeout(() => {
+            setIsNewsPopupVisible(true);
+        }, 20000);
+
+        return () => {
+            clearTimeout(timer1);
+            clearTimeout(timer2);
+        };
     }, []);
 
     useEffect(() => {
@@ -777,34 +787,57 @@ function Portfolio() {
                 </div>
             )}
 
-            {isPopupVisible && (
-                <div
-                    className="fixed bottom-4 right-4 max-w-sm bg-white rounded-lg shadow-lg p-4 transition-all duration-300 transform translate-y-0 opacity-100 cursor-pointer"
-                    onClick={() => {
-                        classify(popularKeyword);
-                        setIsPopupVisible(false);
-                    }}>
-                    <div className="flex justify-between items-start">
-                        <div className="pr-8">
-                            <p className="font-bold mb-1">
-                                🔥 <span className="text-gray-600">이번 주 인기 키워드:</span> '{popularKeyword}'
-                            </p>
-                            <p className="text-sm text-gray-600">
-                                이 카드를 클릭하면 <span className="font-bold">내 포트폴리오 맞춤 분석</span>이 시작됩니다! 🚀
-                            </p>
+            <div className="fixed flex flex-col items-end bottom-0 right-4 z-40">
+                {isNewsPopupVisible && (
+                    <div className="w-fit max-w-sm mb-4 bg-red-100 rounded-lg shadow-lg p-4 transition-all duration-300 transform translate-y-0 opacity-100">
+                        <div className="flex justify-between items-start">
+                            <div className="pr-8">
+                                <p className="font-bold mb-1">
+                                    🚨 <span className="text-red-600">주목해야 할 최신 트랜드: '{newsKeyword}'</span>
+                                </p>
+                                <p className="text-sm text-red-600">
+                                    관련 종목: 엔비디아, 브로드컴, GRT
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setIsNewsPopupVisible(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <X className="text-red-600 w-4 h-4"/>
+                            </button>
                         </div>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setIsPopupVisible(false);
-                            }}
-                            className="text-gray-400 hover:text-gray-600 transition-colors"
-                        >
-                            <X className="w-4 h-4"/>
-                        </button>
                     </div>
-                </div>
-            )}
+                )}
+
+                {isKeywordPopupVisible && (
+                    <div
+                        className="w-fit max-w-sm mb-4 bg-white rounded-lg shadow-lg p-4 transition-all duration-300 transform translate-y-0 opacity-100 cursor-pointer"
+                        onClick={() => {
+                            classify(popularKeyword);
+                            setIsKeywordPopupVisible(false);
+                        }}>
+                        <div className="flex justify-between items-start">
+                            <div className="pr-8">
+                                <p className="font-bold mb-1">
+                                    🔥 <span className="text-gray-600">이번 주 인기 키워드:</span> '{popularKeyword}'
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                    이 카드를 클릭하면 <span className="font-bold">내 포트폴리오 맞춤 분석</span>이 시작됩니다! 🚀
+                                </p>
+                            </div>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsKeywordPopupVisible(false);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <X className="w-4 h-4"/>
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
