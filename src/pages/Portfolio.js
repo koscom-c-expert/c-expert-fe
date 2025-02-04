@@ -278,6 +278,7 @@ function Portfolio() {
 
     const classify = async (_keyword) => {
         setIsLoading(true);
+        setKeyword(_keyword);
         try {
             const response = await fetch('/api/v1/classification', {
                 method: 'POST',
