@@ -829,7 +829,7 @@ function Portfolio() {
                     <div
                         className="w-fit max-w-sm mb-4 bg-red-100 rounded-lg shadow-lg p-4 slide-up-enter cursor-pointer"
                         onClick={() => {
-                            classify(newsKeyword);
+                            classify("트럼프 정책과 관련해서 안정, 주의, 위험으로 분류해줘");
                             setIsNewsPopupVisible(false);
                         }}>
                         <div className="flex justify-between items-start">
