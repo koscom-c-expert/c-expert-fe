@@ -1,12 +1,18 @@
 import {useNavigate, useParams} from "react-router-dom";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import Logo from '../assets/logo-on-white.png';
 import DownArrow from '../assets/down_arrow.svg';
-import {PieChart, Pie, Cell} from 'recharts';
+import {PieChart, Pie, Cell, Tooltip} from 'recharts';
 import {User, Plus, X} from 'lucide-react';
 
 // tableData를 기반으로 chartData를 계산하는 함수
 const getChartData = (data) => {
+    const generateColor = (index, total) => {
+        // Use HSL to generate colors with good spacing and consistent saturation/lightness
+        const hue = (index * (360 / Math.max(total, 3))) % 360;
+        return `hsl(${hue}, 70%, 45%)`; // 70% saturation, 45% lightness for vibrant but not too bright colors
+    };
+
     // 각 type별 totalValue 합산
     const typeSums = {};
     data.forEach(item => {
@@ -16,21 +22,16 @@ const getChartData = (data) => {
     // type별 합계를 배열로 변환 후 totalValue 기준 내림차순 정렬, 상위 3개 선택
     const sortedTypes = Object.entries(typeSums)
         .map(([type, totalValue]) => ({ type, totalValue }))
-        .sort((a, b) => b.totalValue - a.totalValue)
-        .slice(0, 3);
+        .sort((a, b) => b.totalValue - a.totalValue);
 
-    // 상위 3개 totalValue의 총합 (퍼센트 계산용)
+    const fixedColors = ["#4A90E2", "#8B6BE2", "#B23F9E"];
     const totalSum = sortedTypes.reduce((sum, item) => sum + item.totalValue, 0);
 
-    // 상위 3개 순서에 따른 고정 색상 배열
-    const fixedColors = ["#4A90E2", "#8B6BE2", "#B23F9E"];
-
-    // chartData 생성
     return sortedTypes.map((item, index) => ({
         name: item.type,
         value: item.totalValue,
         percentage: Math.round((item.totalValue / totalSum) * 100),
-        color: fixedColors[index]
+        color: index < 3 ? fixedColors[index] : generateColor(index - 3, Math.max(sortedTypes.length - 3, 1))
     }));
 };
 
@@ -127,11 +128,16 @@ const deleteStock = async (stockId) => {
 function Portfolio() {
     const navigate = useNavigate();
 
-    const [username, setUsername] = useState("Guest");
-    const [userId, setUserId] = useState("user1");
+    const popularKeyword = "테마";
 
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    // 사용자 아이디 입력
+    const [userId, setUserId] = useState("");
+    const [isUserDialogOpen, setIsUserDialogOpen] = useState(true);
+    const [userIdInput, setUserIdInput] = useState("");
+
+    const [isStockDialogOpen, setIsStockDialogOpen] = useState(false);
     const [isUpdateDialog, setIsUpdateDialog] = useState(false);
+    const [isPopupVisible, setIsPopupVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const [keyword, setKeyword] = useState("");
@@ -139,6 +145,11 @@ function Portfolio() {
     const [tableData, setTableData] = useState([]);
     const totalValueSum = tableData.reduce((sum, item) => sum + item.totalValue, 0);
     const [chartData, setChartData] = useState([]);
+
+    // 더보기
+    const [showAll, setShowAll] = useState(false);
+    const displayData = showAll ? chartData : chartData.slice(0, 3);
+    const hasMoreItems = chartData.length > 3;
 
     // Dialog
     const [stockId, setStockId] = useState();
@@ -148,7 +159,7 @@ function Portfolio() {
 
     const fetchStocks = async () => {
         try {
-            const response = await fetch('/api/v1/stocks?userId='+userId);
+            const response = await fetch('/api/v1/stocks?userId=' + userId);
             const result = await response.json();
 
             if (result.status === 'success' && result.data) {
@@ -164,7 +175,24 @@ function Portfolio() {
                 setTableData(transformedData);
             }
         } catch (error) {
+            alert('작업을 처리하는 데 문제가 발생했습니다.');
             console.error('Failed to fetch stocks:', error);
+
+            // mock data
+            /*setTableData(
+                [
+                    {type: "트럼프 수혜주1", ticker: "APP1", avgPrice: 12345, quantity: 67, totalValue: 1234567},
+                    {type: "트럼프 악재주2", ticker: "APP2", avgPrice: 11200, quantity: 50, totalValue: 560000},
+                    {type: "나머지3", ticker: "APP3", avgPrice: 9870, quantity: 120, totalValue: 1184400},
+                    {type: "트럼프 수혜주4", ticker: "APP4", avgPrice: 15230, quantity: 30, totalValue: 456900},
+                    {type: "트럼프 악재주5", ticker: "APP5", avgPrice: 8400, quantity: 90, totalValue: 756000},
+                    {type: "나머지", ticker: "APP6", avgPrice: 22100, quantity: 15, totalValue: 331500},
+                    {type: "트럼프 수혜주", ticker: "APP7", avgPrice: 14500, quantity: 42, totalValue: 609000},
+                    {type: "트럼프 악재주", ticker: "APP8", avgPrice: 10700, quantity: 88, totalValue: 941600},
+                    {type: "나머지", ticker: "APP9", avgPrice: 7990, quantity: 70, totalValue: 559300},
+                    {type: "트럼프 수혜주", ticker: "APP10", avgPrice: 19500, quantity: 25, totalValue: 487500}
+                ]
+            );*/
         }
     };
 
@@ -173,19 +201,19 @@ function Portfolio() {
             const result = await updateStock(userId, stockId, ticker, avgPrice, quantity);
             if (result.success) {
                 alert('주식을 성공적으로 수정하였습니다.');
-                setIsDialogOpen(false);
+                setIsStockDialogOpen(false);
                 fetchStocks()
             } else {
-                alert('작업을 처리하는 데 문제가 발생했습니다:', result.error);
+                alert('작업을 처리하는 데 문제가 발생했습니다.');
             }
         } else {
             const result = await addStock(userId, ticker, avgPrice, quantity);
             if (result.success) {
                 alert('주식을 성공적으로 추가하였습니다.');
-                setIsDialogOpen(false);
+                setIsStockDialogOpen(false);
                 fetchStocks()
             } else {
-                alert('작업을 처리하는 데 문제가 발생했습니다:', result.error);
+                alert('작업을 처리하는 데 문제가 발생했습니다.');
             }
         }
     }
@@ -194,14 +222,14 @@ function Portfolio() {
         const result = await deleteStock(stockId);
         if (result.success) {
             alert('주식을 성공적으로 삭제하였습니다.');
-            setIsDialogOpen(false);
+            setIsStockDialogOpen(false);
             fetchStocks()
         } else {
-            alert('작업을 처리하는 데 문제가 발생했습니다:', result.error);
+            alert('작업을 처리하는 데 문제가 발생했습니다.');
         }
     }
 
-    const classify = async () => {
+    const classify = async (_keyword) => {
         setIsLoading(true);
         try {
             const response = await fetch('/api/v1/classification', {
@@ -210,7 +238,7 @@ function Portfolio() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    "keyword": keyword,
+                    "keyword": _keyword,
                     "userId": userId
                 }),
             });
@@ -225,7 +253,8 @@ function Portfolio() {
                     if (matchingStock) {
                         return {
                             ...item,
-                            type: matchingStock.newCategory
+                            type: matchingStock.newCategory,
+                            reason: matchingStock.reason
                         };
                     }
                     return item;
@@ -235,6 +264,7 @@ function Portfolio() {
                 setTableData(updatedTableData);
             }
         } catch (error) {
+            alert('작업을 처리하는 데 문제가 발생했습니다.');
             console.error('Failed to fetch stocks:', error);
         } finally {
             setIsLoading(false);
@@ -246,7 +276,7 @@ function Portfolio() {
         setAvgPrice();
         setQuantity();
         setIsUpdateDialog(false);
-        setIsDialogOpen(true);
+        setIsStockDialogOpen(true);
     }
 
     const openUpdateDialog = (stockId, ticker, avgPrice, quantity) => {
@@ -255,12 +285,44 @@ function Portfolio() {
         setAvgPrice(avgPrice);
         setQuantity(quantity);
         setIsUpdateDialog(true);
-        setIsDialogOpen(true);
+        setIsStockDialogOpen(true);
     }
 
+    const isThereReasonOnTableData = () => {
+        return tableData.length >= 1 && tableData[0].reason !== undefined
+    }
+
+    const LoadingMessage = () => {
+        const [currentEmoji, setCurrentEmoji] = useState(0);
+        const emojis = ['🔥', '🍎', '🎈', '💖'];
+
+        useEffect(() => {
+            const interval = setInterval(() => {
+                setCurrentEmoji((prev) => (prev + 1) % emojis.length);
+            }, 500);
+
+            return () => clearInterval(interval);
+        }, []);
+
+        return (
+            <p className="text-gray-600">
+                분류 진행 중...{emojis[currentEmoji]}
+            </p>
+        );
+    };
+
     useEffect(() => {
-        fetchStocks();
+        const timer = setTimeout(() => {
+            setIsPopupVisible(true);
+        }, 10000);
+        return () => clearTimeout(timer);
     }, []);
+
+    useEffect(() => {
+        if (userId.length >= 1) {
+            fetchStocks();
+        }
+    }, [userId]);
 
     // tableData가 변경될 때마다 chartData 재계산
     useEffect(() => {
@@ -284,18 +346,26 @@ function Portfolio() {
                             </p>
                         </nav>
                         {/* User Profile */}
-                        <div className="flex flex-row justify-between items-center space-x-2 w-32 cursor-pointer">
-                            <div className="flex flex-row items-center">
-                                <div
-                                    className="w-9 h-9 rounded-3xl content-center"
-                                    style={{
-                                        background: 'linear-gradient(90deg, #3498DB 0%, #7474C7 100%)'
-                                    }}>
-                                    <p className="font-bold text-white text-xl">{username.charAt(0)}</p>
-                                </div>
-                                <span className="truncate ml-2">{username}</span>
-                            </div>
-                            <img className="size-4" src={DownArrow}/>
+                        <div className="flex flex-row justify-between items-center space-x-2 w-32 cursor-pointer"
+                             onClick={() => setIsUserDialogOpen(true)}>
+                            {userId.length >= 1 ?
+                                (<div className="flex flex-row items-center">
+                                    <div
+                                        className="w-9 h-9 rounded-3xl content-center"
+                                        style={{
+                                            background: 'linear-gradient(90deg, #3498DB 0%, #7474C7 100%)'
+                                        }}>
+                                        <p className="font-bold text-white text-xl">{userId.charAt(0)}</p>
+                                    </div>
+                                    <span className="truncate ml-2">{userId}</span>
+                                </div>)
+                                : (
+                                    <p className="text-sm">로그인이 필요합니다</p>
+                                )
+                            }
+                            {userId.length >= 1 && (
+                                <img className="size-4" src={DownArrow}/>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -307,14 +377,19 @@ function Portfolio() {
                 <h1 className="text-3xl font-bold mb-8 text-left">내 포트폴리오.</h1>
 
                 {/* Portfolio Overview and Classification */}
-                { chartData.length >= 1 &&
+                {chartData.length >= 1 &&
                     (<div className="grid lg:grid-cols-2 gap-8 mb-8 items-start">
-                        {/* Portfolio Overview */}
+                    {/* Portfolio Overview */}
                         <div className="bg-white p-6 rounded-lg shadow">
                             <h2 className="text-xl font-medium mb-6">포트폴리오 개요</h2>
                             <div className="flex flex-col lg:flex-row">
-                                <div className="lg:w-1/2 relative">
-                                    <div className="w-64 h-64 mx-auto">
+                                <div className="lg:w-1/2">
+                                    <div className="relative w-64 h-64 mx-auto">
+                                        <div
+                                            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-32">
+                                            <div className="text-sm text-gray-600">총 자산</div>
+                                            <div className="text-xl font-bold">{totalValueSum.toLocaleString()}원</div>
+                                        </div>
                                         <PieChart width={256} height={256}>
                                             <Pie
                                                 data={chartData}
@@ -329,29 +404,53 @@ function Portfolio() {
                                                     <Cell key={index} fill={entry.color}/>
                                                 ))}
                                             </Pie>
+                                            <Tooltip
+                                                formatter={(value, name, props) => [
+                                                    `${value.toLocaleString()}원 (${props.payload.percentage}%)`,
+                                                    props.payload.name
+                                                ]}
+                                                contentStyle={{
+                                                    backgroundColor: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '8px',
+                                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                                                    transform: 'translate(-50%, -50%)'
+                                                }}
+                                                itemStyle={{
+                                                    color: '#666666'
+                                                }}
+                                                cursor={false}
+                                                position={{ x: 128, y: 128 }}
+                                            />
                                         </PieChart>
-                                        <div
-                                            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-                                            <div className="text-sm text-gray-600">총 자산</div>
-                                            <div className="text-xl font-bold">{totalValueSum.toLocaleString()}원</div>
-                                        </div>
                                     </div>
                                 </div>
-                                <div className="lg:w-1/2 pl-6">
-                                    {chartData.map((item, index) => (
-                                        <div key={index} className="mb-6">
+                                <div className="lg:w-1/2 pl-6 flex flex-col items-center">
+                                    {displayData.map((item, index) => (
+                                        <div key={index} className="mb-6 w-full">
                                             <div className="flex justify-between items-center mb-1">
-                                                <span className="text-gray-600">{item.name}</span>
+                                                <span className="text-gray-600 truncate">{item.name}</span>
                                             </div>
                                             <div className="flex justify-between text-xl font-bold">
                                                 {item.value.toLocaleString()}원
                                                 <span className="px-3 py-1 rounded-full text-white text-sm"
                                                       style={{backgroundColor: item.color}}>
-                                                {Math.round((item.value / totalValueSum) * 100)}%
-                                            </span>
+                                                    {Math.round((item.value / totalValueSum) * 100)}%
+                                                </span>
                                             </div>
                                         </div>
                                     ))}
+
+                                    {hasMoreItems && (
+                                        <div className="flex flex-row items-center space-x-1.5 cursor-pointer"
+                                             onClick={() => setShowAll(!showAll)}>
+                                            <p className="text-gray-500">{showAll ? '접기' : `더보기`}</p>
+                                            <img
+                                                src={DownArrow}
+                                                className={`size-4 transition-transform duration-200 ${showAll ? 'rotate-180' : ''}`}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -362,31 +461,55 @@ function Portfolio() {
                             <div className="flex flex-row">
                                 <input
                                     type="text"
-                                    placeholder="예시) 금리 인하"
+                                    placeholder="예시) 절세 계좌에서 살 수 있는 주식 분류"
                                     className="flex-grow px-4 py-2 border rounded-lg"
                                     value={keyword}
                                     onChange={(e) => setKeyword(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            classify(keyword);
+                                        }
+                                    }}
                                 />
                                 <button
-                                    className="text-white font-bold w-36 ml-2 px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90"
-                                    onClick={() => classify()}
+                                    className="text-white font-bold w-36 ml-2 px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90 whitespace-nowrap"
+                                    onClick={() => {
+                                        classify(keyword);
+                                    }}
                                     style={{
                                         background: 'linear-gradient(-45deg, #3498DB 0%, #7474C7 50%, #A72B75 100%)'
                                     }}>
                                     ✨ AI 분류 시작
                                 </button>
                             </div>
+                            <div className="mt-2 ms-1 flex flex-row justify-start space-x-1">
+                                <span className="px-3 py-1 rounded-full text-white text-sm bg-gray-400 cursor-pointer"
+                                      onClick={() => classify("금리 인하")}>
+                                    금리 인하
+                                </span>
+                                <span className="px-3 py-1 rounded-full text-white text-sm bg-gray-400 cursor-pointer"
+                                      onClick={() => classify("국가별 분류")}>
+                                    국가별 분류
+                                </span>
+                                <span className="px-3 py-1 rounded-full text-white text-sm bg-gray-400 cursor-pointer"
+                                      onClick={() => classify("섹터")}>
+                                    섹터
+                                </span>
+                            </div>
+                            <p className="text-left mt-4 text-gray-500 italic">📙 AI 분류 팁 - 디테일하게 질문할수록 더욱 좋은 결과를 얻을 수
+                                있어요!</p>
                         </div>
                     </div>)
                 }
 
                 {/* Holdings */}
                 <div className="bg-white p-6 rounded-lg shadow">
-                    <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-medium">보유 종목 현황</h2>
                         <button
                             onClick={() => openCreateDialog()}
-                            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            className="flex items-center px-4 py-2 text-white rounded-lg"
+                            style={{ backgroundColor: '#4A90E2' }}>
                             <Plus className="w-4 h-4 mr-2"/>
                             종목 추가
                         </button>
@@ -402,6 +525,9 @@ function Portfolio() {
                                 <th className="px-4 py-2">평균매입가</th>
                                 <th className="px-4 py-2">보유수량</th>
                                 <th className="px-4 py-2">평가금액</th>
+                                {isThereReasonOnTableData() && (
+                                    <th className="px-4 py-2">판단근거</th>
+                                )}
                             </tr>
                             </thead>
                             <tbody>
@@ -411,14 +537,17 @@ function Portfolio() {
                                         <tr key={index} className="border-b cursor-pointer"
                                             onClick={() => openUpdateDialog(row.id, row.ticker, row.avgPrice, row.quantity)}>
                                             <td className="px-4 py-2">
-                                        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
-                                          {row.type}
-                                        </span>
+                                                <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm truncate">
+                                                  {row.type}
+                                                </span>
                                             </td>
-                                            <td className="px-4 py-2">{row.ticker}</td>
-                                            <td className="px-4 py-2">{row.avgPrice.toLocaleString()}원</td>
-                                            <td className="px-4 py-2">{row.quantity}주</td>
-                                            <td className="px-4 py-2">{row.totalValue.toLocaleString()}원</td>
+                                            <td className="px-4 py-2 truncate">{row.ticker}</td>
+                                            <td className="px-4 py-2 truncate">{row.avgPrice.toLocaleString()}원</td>
+                                            <td className="px-4 py-2 truncate">{row.quantity}주</td>
+                                            <td className="px-4 py-2 truncate">{row.totalValue.toLocaleString()}원</td>
+                                            {isThereReasonOnTableData() && (
+                                                <td className="px-4 py-2 truncate">{row.reason}</td>
+                                            )}
                                         </tr>
                                     ))
                                 ) : (
@@ -437,14 +566,14 @@ function Portfolio() {
 
 
             {/* Custom Modal */}
-            {isDialogOpen && (
+            {isStockDialogOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg w-[425px] relative">
                         {/* Header */}
                         <div className="px-6 py-4 flex justify-between items-center">
                             <h2 className="text-xl font-medium">{isUpdateDialog ? `종목 편집` : `종목 추가`}</h2>
                             <button
-                                onClick={() => setIsDialogOpen(false)}
+                                onClick={() => setIsStockDialogOpen(false)}
                                 className="rounded-full p-1 hover:bg-gray-100"
                             >
                                 <X className="w-4 h-4"/>
@@ -498,7 +627,7 @@ function Portfolio() {
                                 }
                                 <div className="flex justify-end space-x-2 pt-4">
                                     <button
-                                        onClick={() => setIsDialogOpen(false)}
+                                        onClick={() => setIsStockDialogOpen(false)}
                                         className="px-4 py-2 border rounded-lg hover:bg-gray-50"
                                     >
                                         취소
@@ -516,9 +645,63 @@ function Portfolio() {
                 </div>
             )}
 
+            {/* User id Modal */}
+            {isUserDialogOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg w-[425px] relative">
+                        {/* Header */}
+                        <div className="px-6 pt-4 flex justify-between items-center">
+                            <h2 className="text-xl font-medium">로그인</h2>
+                            <button
+                                onClick={() => setIsUserDialogOpen(false)}
+                                className="rounded-full p-1 hover:bg-gray-100"
+                            >
+                                <X className="w-4 h-4"/>
+                            </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-6 space-y-4">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-left">사용자 아이디</label>
+                                <input
+                                    type="text"
+                                    placeholder="user1"
+                                    className="w-full px-4 py-2 border rounded-lg"
+                                    value={userIdInput}
+                                    onChange={(e) => setUserIdInput(e.target.value)}
+                                />
+                            </div>
+
+                            {/* Buttons */}
+                            <div className="flex justify-between items-center">
+                                <p></p>
+                                <div className="flex justify-end space-x-2">
+                                    <button
+                                        onClick={() => setIsUserDialogOpen(false)}
+                                        className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                                    >
+                                        취소
+                                    </button>
+                                    <button
+                                        className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+                                        onClick={() => {
+                                            setUserId(userIdInput);
+                                            setIsUserDialogOpen(false);
+                                        }}
+                                    >
+                                        확인
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {isLoading && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-8 rounded-lg flex flex-col items-center space-y-4">
+                    <div className="bg-white pt-8 pl-8 pr-8 pb-5 rounded-lg flex flex-col items-center space-y-4">
                         <div className="w-32 h-1 bg-gray-200 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-gradient"
@@ -528,7 +711,36 @@ function Portfolio() {
                                 }}
                             />
                         </div>
-                        <p className="text-gray-600">분류 진행 중...</p>
+                        <LoadingMessage />
+                    </div>
+                </div>
+            )}
+
+            {isPopupVisible && (
+                <div
+                    className="fixed bottom-4 right-4 max-w-sm bg-white rounded-lg shadow-lg p-4 transition-all duration-300 transform translate-y-0 opacity-100 cursor-pointer"
+                    onClick={() => {
+                        classify(popularKeyword);
+                        setIsPopupVisible(false);
+                    }}>
+                    <div className="flex justify-between items-start">
+                        <div className="pr-8">
+                            <p className="font-bold mb-1">
+                                🔥 <span className="text-gray-600">이번 주 인기 키워드:</span> '{popularKeyword}'
+                            </p>
+                            <p className="text-sm text-gray-600">
+                                이 카드를 클릭하면 <span className="font-bold">내 포트폴리오 맞춤 분석</span>이 시작됩니다! 🚀
+                            </p>
+                        </div>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsPopupVisible(false);
+                            }}
+                            className="text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            <X className="w-4 h-4"/>
+                        </button>
                     </div>
                 </div>
             )}
